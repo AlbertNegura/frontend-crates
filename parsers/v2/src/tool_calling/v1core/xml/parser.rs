@@ -830,6 +830,51 @@ fn value_matches(v: &Value, allowed: &HashSet<SchemaType>) -> bool {
     allowed.contains(&cat) || (cat == SchemaType::Integer && allowed.contains(&SchemaType::Number))
 }
 
+// JSON Schema integers include decimal/exponent spellings with no fractional part.
+// Work on digits so large integers and near-integers are never rounded through f64.
+fn coerce_integral_number(value: &str) -> Option<ParsedValue> {
+    if is_integer_literal(value) {
+        return coerce_integer_literal(value);
+    }
+    let raw = raw_number_literal(value)?;
+    let unsigned = value.strip_prefix('-').unwrap_or(value);
+    let (mantissa, exponent) = match unsigned.split_once(['e', 'E']) {
+        Some((mantissa, exponent)) => (mantissa, exponent.parse::<i64>().ok()?),
+        None => (unsigned, 0),
+    };
+    let (whole, fraction) = mantissa.split_once('.').unwrap_or((mantissa, ""));
+    if whole.is_empty()
+        || !whole
+            .bytes()
+            .chain(fraction.bytes())
+            .all(|b| b.is_ascii_digit())
+    {
+        return None;
+    }
+    let digits = format!("{whole}{fraction}");
+    let significant = digits.trim_start_matches('0').trim_end_matches('0');
+    if significant.is_empty() {
+        return Some(Value::Number(0.into()).into());
+    }
+    let trailing = digits.len() - digits.trim_end_matches('0').len();
+    let zeros = exponent
+        .checked_sub(i64::try_from(fraction.len()).ok()?)?
+        .checked_add(i64::try_from(trailing).ok()?)?;
+    if zeros < 0 {
+        return None;
+    }
+    // Keep very large numbers in their original exact JSON spelling rather than
+    // allocating an exponent-sized string. Twenty digits cover i64/u64 values.
+    if zeros > 20 || significant.len() > 20 - zeros as usize {
+        return Some(raw);
+    }
+    let sign = if value.starts_with('-') { "-" } else { "" };
+    coerce_integer_literal(&format!(
+        "{sign}{significant}{}",
+        "0".repeat(zeros as usize)
+    ))
+}
+
 /// Coerce a raw XML value to one of the types a union schema allows. Tries
 /// structured (object/array) parsing only when the union permits it, then
 /// integer, number, and boolean, and finally falls back to a string. A value
@@ -851,8 +896,7 @@ fn coerce_union_value(value: &str, allowed: &HashSet<SchemaType>) -> ParsedValue
     }
 
     if allowed.contains(&SchemaType::Integer)
-        && is_integer_literal(value)
-        && let Some(coerced) = coerce_integer_literal(value)
+        && let Some(coerced) = coerce_integral_number(value)
     {
         return coerced;
     }
@@ -1179,5 +1223,21 @@ mod coderabbit_fix_tests {
         let content = content.unwrap();
         assert!(content.contains("Intro"), "prefix kept: {content:?}");
         assert!(content.contains("mid"), "trailing kept: {content:?}");
+    }
+}
+
+#[cfg(test)]
+mod integral_number_tests {
+    use super::coerce_integral_number;
+
+    #[test]
+    fn large_integral_numbers_keep_their_exact_spelling_without_expansion() {
+        for raw in ["123456789012345678901234567890.0", "1e100000"] {
+            let value = coerce_integral_number(raw).expect("integral JSON number");
+            assert_eq!(serde_json::to_string(&value).unwrap(), raw);
+        }
+        for raw in ["42.0000000000000001", "1e-400", "true", "\"42\""] {
+            assert!(coerce_integral_number(raw).is_none(), "{raw}");
+        }
     }
 }
