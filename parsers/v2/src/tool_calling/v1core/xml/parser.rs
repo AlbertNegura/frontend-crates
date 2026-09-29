@@ -6,7 +6,6 @@
 
 use std::collections::{HashMap, HashSet};
 
-use num_traits::ToPrimitive;
 use regex::Regex;
 use serde_json::Value;
 use uuid::Uuid;
@@ -590,55 +589,9 @@ fn convert_param_value(
             }
         }
 
-        // Float/Number types: Parse integer-looking tokens before f64 to avoid
-        // precision loss above f64's exact integer range.
-        // Matches: "number", "num", "float", "float32", "float64", "double", etc.
-        // Note: Whole numbers (e.g., 42.0) are stored as integers for better JSON compatibility
-        // when they fit in i64. Larger finite whole numbers must not be cast with `as i64`,
-        // which saturates to i64::MIN/MAX and corrupts model-emitted arguments.
+        // Preserve valid JSON number text without a floating-point roundtrip.
         t if t.starts_with("num") || t.starts_with("float") => {
-            if is_integer_literal(&param_value) {
-                if let Ok(int_val) = param_value.parse::<i64>() {
-                    Value::Number(int_val.into()).into()
-                } else if let Some(raw) = raw_number_literal(&param_value) {
-                    raw
-                } else {
-                    Value::String(param_value).into()
-                }
-            } else {
-                match param_value.parse::<f64>() {
-                    Ok(float_val) => {
-                        if float_val.fract() == 0.0 && float_val.is_finite() {
-                            if let Some(int_val) = float_val.to_i64() {
-                                Value::Number(int_val.into()).into()
-                            } else if let Some(raw) = raw_number_literal(&param_value) {
-                                raw
-                            } else {
-                                Value::String(param_value).into()
-                            }
-                        } else if let Some(num) = serde_json::Number::from_f64(float_val) {
-                            Value::Number(num).into()
-                        } else {
-                            tracing::warn!(
-                                "Parsed value '{}' of parameter '{}' is not a valid float in tool '{}', degenerating to string.",
-                                param_value,
-                                param_name,
-                                func_name
-                            );
-                            Value::String(param_value).into()
-                        }
-                    }
-                    Err(_) => {
-                        tracing::warn!(
-                            "Parsed value '{}' of parameter '{}' is not a float in tool '{}', degenerating to string.",
-                            param_value,
-                            param_name,
-                            func_name
-                        );
-                        Value::String(param_value).into()
-                    }
-                }
-            }
+            coerce_number_value(&param_value).unwrap_or_else(|| Value::String(param_value).into())
         }
 
         // Boolean types: Only "true" or "false" (case-insensitive) are valid.
@@ -787,10 +740,10 @@ fn collect_type_constraints(schema: &Value) -> Option<HashSet<SchemaType>> {
         constraints.push(out);
     }
     if let Some(value) = schema.get("const") {
-        constraints.push(HashSet::from([value_category(value)]));
+        constraints.push(literal_type_constraints(value));
     }
     if let Some(values) = schema.get("enum").and_then(Value::as_array) {
-        constraints.push(values.iter().map(value_category).collect());
+        constraints.push(values.iter().flat_map(literal_type_constraints).collect());
     }
     for key in ["anyOf", "oneOf"] {
         if let Some(options) = schema.get(key).and_then(Value::as_array) {
@@ -806,13 +759,23 @@ fn collect_type_constraints(schema: &Value) -> Option<HashSet<SchemaType>> {
     })
 }
 
-/// JSON Schema treats numbers with no fractional part as integers, including `42.0`.
+// A float-backed schema literal has already passed through f64: an integral-looking
+// value may have originated as a large fraction. Retain the number alternative.
+// Explicit integer types still intersect this set and exclude fractional arguments.
+fn literal_type_constraints(value: &Value) -> HashSet<SchemaType> {
+    match value_category(value) {
+        SchemaType::Number => HashSet::from([SchemaType::Integer, SchemaType::Number]),
+        category => HashSet::from([category]),
+    }
+}
+
+/// The storage category, without inferring mathematical integrality from f64.
 fn value_category(v: &Value) -> SchemaType {
     match v {
         Value::String(_) => SchemaType::String,
         Value::Bool(_) => SchemaType::Boolean,
         Value::Number(n) => {
-            if n.is_i64() || n.is_u64() || n.as_f64().is_some_and(|n| n.fract() == 0.0) {
+            if n.is_i64() || n.is_u64() {
                 SchemaType::Integer
             } else {
                 SchemaType::Number
@@ -828,6 +791,23 @@ fn value_matches(v: &Value, allowed: &HashSet<SchemaType>) -> bool {
     let cat = value_category(v);
     // An integer literal also satisfies a `number` constraint.
     allowed.contains(&cat) || (cat == SchemaType::Integer && allowed.contains(&SchemaType::Number))
+}
+
+fn coerce_number_value(value: &str) -> Option<ParsedValue> {
+    if let Some(integer) = coerce_integral_number(value) {
+        return Some(integer);
+    }
+    if value.starts_with(|ch: char| ch == '-' || ch.is_ascii_digit())
+        && let Some(number) = raw_number_literal(value)
+    {
+        return Some(number);
+    }
+    // Preserve the historical acceptance of non-JSON spellings such as +1 or .5.
+    value
+        .parse::<f64>()
+        .ok()
+        .and_then(serde_json::Number::from_f64)
+        .map(|number| Value::Number(number).into())
 }
 
 // JSON Schema integers include decimal/exponent spellings with no fractional part.
@@ -901,23 +881,10 @@ fn coerce_union_value(value: &str, allowed: &HashSet<SchemaType>) -> ParsedValue
         return coerced;
     }
 
-    if allowed.contains(&SchemaType::Number) {
-        if is_integer_literal(value)
-            && let Some(coerced) = coerce_integer_literal(value)
-        {
-            return coerced;
-        }
-        if let Ok(f) = value.parse::<f64>() {
-            if f.fract() == 0.0
-                && f.is_finite()
-                && let Some(i) = f.to_i64()
-            {
-                return Value::Number(i.into()).into();
-            }
-            if let Some(num) = serde_json::Number::from_f64(f) {
-                return Value::Number(num).into();
-            }
-        }
+    if allowed.contains(&SchemaType::Number)
+        && let Some(number) = coerce_number_value(value)
+    {
+        return number;
     }
 
     if allowed.contains(&SchemaType::Boolean) {
