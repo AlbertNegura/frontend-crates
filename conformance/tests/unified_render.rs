@@ -1267,3 +1267,64 @@ fn label(v: &str) -> String {
 fn css(v: &str) -> &'static str {
     if v == "MATCH" { "MATCH" } else { "RED" }
 }
+
+#[test]
+fn case_tools_control_capture_types_without_changing_legacy_defaults() {
+    // Exercise the authored Python YAML path as well as Rust deserialization;
+    // dropping tools during emit_yaml would silently restore the string default.
+    let output = std::process::Command::new("python3")
+        .arg("-c")
+        .arg(
+            r#"
+import sys
+sys.path.insert(0, sys.argv[1])
+import gen_unified_golden as g
+case = {"description":"per-case schema", "policy":[], "init":{},
+        "finish_reason":"stop", "input":"", "golden":[], "expect":{},
+        "tools":[{"name":"f", "parameters":{"type":"object",
+                 "properties":{"x":{"type":"integer"}}}}]}
+g.build_cases = lambda family: {"custom": case}
+print(g.emit_yaml("glm47"))
+"#,
+        )
+        .arg(std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("utils/src"))
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let mut file: GoldenFile = serde_yaml::from_slice(&output.stdout).unwrap();
+    let case = file.cases.remove("custom").unwrap();
+    let input = "<tool_call>f<arg_key>x</arg_key><arg_value>42</arg_value></tool_call>";
+    let custom = common::unified_tools_for_schemas(case.tools.as_ref());
+    let expected = vec![Ev::ToolCall {
+        name: "f".into(),
+        arguments: json!({"x":42}),
+    }];
+    assert_eq!(
+        dynamo_events_with_tools("glm47", input, &case.init, &custom),
+        expected
+    );
+    assert_ne!(
+        dynamo_events_with_tools("glm47", input, &case.init, &tools()),
+        expected
+    );
+    let rows = dynamo_chunks_with_tools("glm47", input, &case.init, &custom);
+    assert!(rows.iter().flat_map(|row| &row.deltas).any(|delta| {
+        delta["arguments"]
+            .as_str()
+            .is_some_and(|args| args.contains("42"))
+    }));
+    let legacy: GoldenCase = serde_json::from_value(json!({
+        "description": "legacy schema", "input": "", "golden": [], "expect": {}
+    }))
+    .unwrap();
+    assert_eq!(
+        common::unified_tool_schemas_for_case(legacy.tools.as_ref()),
+        common::unified_tool_schemas()
+    );
+    let input_case: InputCase = serde_json::from_value(json!({"tools":case.tools})).unwrap();
+    assert_eq!(input_case.tools, case.tools);
+}
