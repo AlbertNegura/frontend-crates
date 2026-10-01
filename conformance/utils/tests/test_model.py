@@ -447,16 +447,112 @@ process.stdout.write(JSON.stringify(tips.map(tip => context.window.audit.buildTo
         left = re.search(r'<td class="cin">(.*?)</td>', markup, re.S)
         assert left is not None
         text = unescape(re.sub(r"<[^>]+>", "", left.group(1)))
-        assert f"input_text='{expected['input']['text']}'" in text
-        assert ("Golden output" in text) == (expected is tip)
+        assert text == f"input_text='{expected['input']['text']}'"
+        assert "<th>input</th>" in markup
+        right = re.search(rf'<td data-cand="{fixed["key"]}"[^>]*>(.*?)</td>', markup, re.S)
+        assert right is not None
+        output = unescape(re.sub(r"<[^>]+>", "", right.group(1)))
+        block = next(candidate["block"] for candidate in expected["candidates"] if candidate["key"] == fixed["key"])
+        assert f"normal_text='{block['normal_text']}'" in output
+        assert "calls=" in output
         if expected is tip:
-            assert '"pattern":"null","path":null' in text
+            assert "calls=" + json.dumps(block["calls"], separators=(",", ":")) in output
     for row in tab["rows"]:
         if row.get("family") and row["family"] != "minimax_m3":
             for sub in ("7-4", "7-5"):
                 cell = row["cells"][sub]
                 assert cell_state(cell, reference)[0] == "na", row["family"]
                 assert cell["tooltip"]["na_note"], row["family"]
+
+
+@pytest.mark.parametrize("mode,baseline_key,fixed_key", [
+    ("batch", "dynamo_v1-b-9-2-1", "dynamo_v1-b-9-2-2"),
+    ("streamv1", "dynamo_v2-0-7-4", "dynamo_v2-0-7-5"),
+])
+def test_minimax_nested_union_fixtures_preserve_history_and_input(
+    model_v2: dict, mode: str, baseline_key: str, fixed_key: str,
+) -> None:
+    tab = _tab(model_v2, f"tab-toolcalling-{mode}")
+    row = next(row for row in tab["rows"] if row.get("family") == "minimax_m3")
+    candidates = {candidate["key"]: candidate for candidate in tab["candidates"]}
+    columns = {column["sub"]: column for column in tab["columns"]}
+    expected = {
+        "7-6": {
+            **{f"pagination_{union}": {
+                "page": 2, "per_page": 25, "after": None, "mode": "one",
+                "cursor": None, "config": {"enabled": True},
+            } for union in ("anyof", "oneof")},
+            **{f"options_{union}": {"enabled": True, "mode": "one"}
+               for union in ("anyof", "oneof")},
+        },
+        "7-7": {f"{union}_{literal}": {"page": 2}
+                for union in ("anyof", "oneof") for literal in ("const", "enum")},
+        "7-8": {f"{union}_ambiguous": {"value": "2"} for union in ("anyof", "oneof")},
+    }
+    tips = []
+    for sub, arguments in expected.items():
+        cell = row["cells"][sub]
+        assert cell["case_id"] == f"TOOLCALLING.{mode}.{sub}"
+        assert columns[sub]["label"] == sub
+        assert columns[sub]["group_key"] == "args"
+        assert cell_state(cell, candidates[fixed_key])[0] == "green", sub
+        assert cell_state(cell, candidates[baseline_key])[0] == ("green" if sub == "7-8" else "red"), sub
+        tip = cell["tooltip"]
+        blocks = {candidate["key"]: candidate["block"] for candidate in tip["candidates"]}
+        for key in ("golden", fixed_key):
+            assert blocks[key]["calls"] == [{"name": "list_notes", "arguments": arguments}], sub
+            assert blocks[key]["normal_text"] == "", sub
+        baseline = blocks[baseline_key]["calls"][0]["arguments"]
+        if sub == "7-6":
+            assert baseline["pagination_anyof"]["page"] == "2"
+            assert baseline["options_oneof"]["enabled"] == "true"
+        elif sub == "7-7":
+            assert all(value["page"] == "2" for value in baseline.values())
+        else:
+            assert baseline == arguments
+        batch_path = _cache_root() / "toolcalling/fixtures-batch-v1/inputs/minimax_m3" / f"TOOLCALLING.batch.{sub}.yaml"
+        raw_input = yaml.safe_load(batch_path.read_text())["cases"][f"TOOLCALLING.batch.{sub}"]["model_text"]
+        stimulus = tip["input"]
+        assert stimulus["kind"] == ("text" if mode == "batch" else "chunks")
+        assert (stimulus["text"] if mode == "batch" else
+                "".join(chunk["delta_text"] for chunk in stimulus["chunks"])) == raw_input
+        tips.append(tip)
+    script = r"""
+const fs = require('fs');
+const vm = require('vm');
+const context = {window: {}, document: {cookie: '', documentElement: {setAttribute() {}},
+  querySelectorAll() {return [];}, addEventListener() {}, getElementById() {return null;}}};
+vm.createContext(context);
+const source = fs.readFileSync(process.argv[1], 'utf8');
+vm.runInContext(source.replace('// --- Entry point',
+  'window.audit = {buildTooltipHtml};\n// --- Entry point'), context);
+const tips = JSON.parse(fs.readFileSync(0, 'utf8'));
+process.stdout.write(JSON.stringify(tips.map(tip => context.window.audit.buildTooltipHtml(tip))));
+"""
+    result = subprocess.run(
+        ["node", "-e", script, str(UTILS / "src/assets/conformance_view.js")],
+        input=json.dumps(tips), text=True, capture_output=True, check=True,
+    )
+    for tip, markup in zip(tips, json.loads(result.stdout)):
+        left = [unescape(re.sub(r"<[^>]+>", "", match))
+                for match in re.findall(r'<td class="cin">(.*?)</td>', markup, re.S)]
+        if mode == "batch":
+            assert len(left) == 1
+            assert left[0] == f"input_text='{tip['input']['text']}'"
+            assert "<th>input</th>" in markup
+            right = re.search(rf'<td data-cand="{fixed_key}"[^>]*>(.*?)</td>', markup, re.S)
+            assert right is not None
+            output = unescape(re.sub(r"<[^>]+>", "", right.group(1)))
+            block = next(candidate["block"] for candidate in tip["candidates"] if candidate["key"] == fixed_key)
+            assert f"normal_text='{block['normal_text']}'" in output
+            assert "calls=" + json.dumps(block["calls"], separators=(",", ":")) in output
+        else:
+            chunks = tip["input"]["chunks"]
+            assert len(left) == len(chunks) + 1
+            assert all(chunk["delta_text"] in text for chunk, text in zip(chunks, left))
+            golden = next(candidate["block"] for candidate in tip["candidates"] if candidate["key"] == "golden")
+            assert "Golden output" in left[-1]
+            assert "calls=" + json.dumps(golden["calls"], separators=(",", ":")) in left[-1]
 
 
 @pytest.mark.parametrize("parent", ["7-4", "7-5"])
@@ -1039,7 +1135,18 @@ def test_stream_null_columns_match_unified_numbers(model_v2):
         assert row["cells"][label]["case_id"] == "TOOLCALLING.streamv1." + label
 
 
-@pytest.mark.parametrize("suffix", ["7", "7.a", "7-4", "7-5"])
+@pytest.mark.parametrize("mode", ["batch", "streamv1"])
+def test_numbered_cases_keep_argument_group_and_natural_fallback_order(mode: str) -> None:
+    cases = {("minimax_m3", sub): {} for sub in (
+        "13-10", "7-8", "13-2.variant", "7-6", "7-5", "13-2", "7-7", "8.a", "7.a", "13.a",
+    )}
+    assert table.fixtures._discover_sub_cases(mode, cases) == [
+        "7.a", "7-5", "7-6", "7-7", "7-8", "8.a", "13.a", "13-2", "13-2.variant", "13-10",
+    ]
+    assert all(table.fixtures._subcase_group_key(mode, sub) == "args" for sub in ("7-6", "7-7", "7-8"))
+
+
+@pytest.mark.parametrize("suffix", ["7", "7.a", "7-4", "7-5", "7-6", "7-7", "7-8"])
 @pytest.mark.parametrize("mode", ["batch", "stream", "streamv1"])
 def test_case_description_readers_accept_numbered_suffixes(tmp_path, monkeypatch, suffix, mode):
     doc = tmp_path / "descriptions.data"
