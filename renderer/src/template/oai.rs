@@ -923,7 +923,7 @@ mod tests {
     #[test]
     fn minimax_m2_disabled_thinking_only_changes_the_generation_prompt() {
         // Everything before the generation prompt is byte-identical between the
-        // two modes, so KV prefixes and multi-turn replay are unaffected.
+        // two thinking modes.
         let f = minimax_m2_formatter();
         let enabled = f
             .render(&minimax_request(Some(json!({"thinking": true})), None))
