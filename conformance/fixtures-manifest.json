@@ -27,8 +27,8 @@
     },
     {
       "path": "toolcalling/fixtures-batch-on-stream-v1.tar.gz",
-      "sha256": "76cc59a55be0f023c0301700fd0a74d8267308671d8ed5bcd23b7da69b065aaa",
-      "size": 18068
+      "sha256": "51a4f376a218df8b3f9b0c8f2ad80b5415cbd55eb235d27f8efa68e2371f4214",
+      "size": 17639
     },
     {
       "path": "toolcalling/fixtures-batch-v1/dynamo_v1-3.0.0.tar.gz",
@@ -226,6 +226,11 @@
       "size": 1691
     },
     {
+      "path": "toolcalling/fixtures-stream-v1/dynamo_v2-0.7.9.tar.gz",
+      "sha256": "bb716e9adc3cc5cd5b94ecdd38e8646bc59e9896601b59efa3b1723b9e4b5f5a",
+      "size": 15737
+    },
+    {
       "path": "toolcalling/fixtures-stream-v1/inputs.tar.gz",
       "sha256": "b44b323ef970dfa4ece9b79c5d9a4b427f6d68a2c64a55aa5307aba3e5a2acd2",
       "size": 81484
@@ -283,8 +288,8 @@
     {
       "path": "unified-history",
       "format": "unified-history",
-      "sha256": "fb273c75596d8f67c7033bc29906a0159879679359403e00ca58329b49677b94",
-      "size": 3877296
+      "sha256": "34afdb665530e2623843a7a87daf39e7046eac12725b27af5cf852a82c8e8ea9",
+      "size": 4581327
     }
   ],
   "inactive_shards": []
