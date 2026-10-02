@@ -33,15 +33,15 @@ def producer(request, monkeypatch, tmp_path):
 
     class Parser:
         def __init__(self, *args, **kwargs):
-            pass
+            self.tools = kwargs.get("tools")
 
         def parse(self, text, *args):
-            calls.append(("batch", text))
+            calls.append(("batch", text, args[0].tools, self.tools))
             return None, text, []
 
         def parse_delta(self, text, *args, finished=False):
             calls.append(("delta", text, finished))
-            return SimpleNamespace(content=text, reasoning_content=None, tool_calls=[])
+            return SimpleNamespace(content=text, reasoning=None, tool_calls=[])
 
         def parse_stream_chunk(self, text):
             calls.append(("stream", text))
@@ -183,8 +183,36 @@ def test_literal_finish_marker_is_not_an_unexecuted_terminal_operation(producer)
 
 
 def test_peer_rejects_unapplied_tool_schema(producer):
-    _engine, run, calls = producer
+    engine, run, calls = producer
     result = run(_case(tools=[]))
+    if engine in {"vllm_rust", "vllm_python"}:
+        assert "unavailable" not in result
+        assert result["capture_input"]["tools"] == []
+        if engine == "vllm_rust":
+            assert calls[0][1]["tools"] == []
+        else:
+            assert calls[0][2:] == ([], [])
+        return
     assert "tools" in result["unavailable"]
     assert result["capture_input"]["tools"] == unified_tools()
     assert not calls
+
+
+def test_python_capture_preserves_reasoning_and_parser_errors(producer, monkeypatch):
+    engine, run, _calls = producer
+    if engine != "vllm_python":
+        return
+    module = sys.modules["capture_vllm_unified"]
+    assert module._delta_events(SimpleNamespace(reasoning="think")) == [
+        {"kind": "reasoning", "text": "think"},
+    ]
+
+    class FailingParser:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def parse(self, *args):
+            raise ValueError("malformed tool call")
+
+    monkeypatch.setattr(module.ParserManager, "get_parser", lambda self, **kwargs: FailingParser)
+    assert run(_case())["error"] == "ValueError: malformed tool call"

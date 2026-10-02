@@ -2261,7 +2261,7 @@ def _load_unified_fixtures(base: Path):
                         family, k, input_aliases,
                     )
                     current = inputs.get((fp.parent.name, k))
-                    if current is not None:
+                    if current is not None and not cd.get("unavailable"):
                         reason = capture_stimulus.comparison_failure(
                             cd, current, raw, str(fp.relative_to(base / name)), input_bindings[name],
                         )
@@ -2487,8 +2487,8 @@ def _unified_tab_model(artifact_root: Path, hrefs: dict) -> dict | None:
             + ", ".join(sorted(missing_scenarios))
         )
 
-    vllm_python_vers = _vers.get("vllm_python_all") or []
-    vrust_vers = _vers.get("vllm_rust_all") or []
+    vllm_python_vers = (_vers.get("vllm_python_all") or [])[-1:]
+    vrust_vers = (_vers.get("vllm_rust_all") or [])[-1:]
 
     def _sig(events) -> int:
         return int(hashlib.md5(json.dumps(events, sort_keys=True).encode()).hexdigest()[:8], 16)
@@ -2542,8 +2542,7 @@ def _unified_tab_model(artifact_root: Path, hrefs: dict) -> dict | None:
                 "default_bucket": bucket, "version": version, "parse_mode": "unified"}
     # Alphabetical by label so non-Reference popup columns sort alphabetically
     # (the selected Reference is pulled to the left by the view). Unified keeps the
-    # released Combined captures beside newer native UnifiedParser captures so the
-    # table shows the actual version-to-version history.
+    # Dynamo history beside the latest captured vLLM Python and Rust releases.
     # THIS tab's own capture version. It used to borrow _dynamo_v2_version(), which reads
     # the STREAM tree (toolcalling/fixtures-stream-v1) — a different tree on a different
     # release cadence — so the column was labelled with a version that did not produce
@@ -2557,18 +2556,15 @@ def _unified_tab_model(artifact_root: Path, hrefs: dict) -> dict | None:
     peer_specs = []
     for ver in reversed(vllm_python_vers):
         peer_specs.append({
-            # Keep the established control key for the existing 0.25.1 column.
-            # Shared links use it, and this change adds a 0.26 UnifiedParser column;
-            # it must not invalidate the old table's URL contract.
+            # Retain the legacy key when rendering an older snapshot.
             "key": "vllm" if ver == "0.25.1" else f"vllm_python@{ver}",
             "impl": "vllm", "source": "vllm_python",
-            "version": ver, "label": f"vLLM Python {ver} (batch, Combined)",
+            "version": ver, "label": f"vLLM Python {ver} (batch, Combined & Unified)",
             "stream": False,
         })
     for ver in reversed(vrust_vers):
         peer_specs.append({
-            # vllm_rust is the pre-existing 0.25.1 Combined column. The native
-            # UnifiedParser is an additional versioned column, not a replacement.
+            # Retain the legacy key when rendering an older snapshot.
             "key": "vllm_rust" if ver == "0.25.1" else f"vllm_rust@{ver}",
             "impl": "vllm", "source": "vllm_rust",
             "version": ver,
@@ -2596,7 +2592,7 @@ def _unified_tab_model(artifact_root: Path, hrefs: dict) -> dict | None:
         pc["impl"] = "dynamo"
         candidates.append(pc)
     for spec in peer_specs:
-        pc = _cand(spec["key"], spec["label"], "C", spec["version"])
+        pc = _cand(spec["key"], spec["label"], "B", spec["version"])
         pc["impl"] = spec["impl"]
         candidates.append(pc)
 
@@ -2886,9 +2882,9 @@ def _unified_tab_model(artifact_root: Path, hrefs: dict) -> dict | None:
         "candidates": candidates, "rows": rows, "stats": stats, "glossary": unified_glossary,
         "case_prefix": "UNIFIED.", "case_section_id": "unified",
         "case_docs_href": cases_href, "case_docs_label": "lib/parsers/UNIFIED_CASES.md",
-        "captured_note": ("vLLM captures include every packaged 0.25.1 and 0.26.x "
-                          "parser version. vLLM Rust 0.26.0 uses the native "
-                          "UnifiedParser for Gemma4 and CombinedParser for Qwen3/Kimi K2."),
+        "captured_note": ("The latest captured vLLM Python and Rust releases are selected for comparison. "
+                          "Native UnifiedParser and CombinedParser outputs are measured live; "
+                          "unsupported parser families and request modes are marked unavailable."),
         "toolbar_desc_html": (
             'Oracle = <strong>GOLDEN</strong> (authored, best-effort recovery) · '
             'Default Reference = <strong>Dynamo v2 Rust</strong>. '

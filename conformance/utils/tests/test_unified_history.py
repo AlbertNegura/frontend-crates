@@ -357,3 +357,21 @@ def test_materialized_null_labels_follow_stable_owners_after_number_swap(tmp_pat
         capture = unified_history.load_yaml(out / "dynamo_v2-0.7.4/gemma4" / (display + ".yaml"))
         assert capture["cases"][display]["assembled"][0]["arguments"]["city"] == value
     assert capture_path.read_bytes() == before
+
+
+def test_first_peer_capture_for_existing_family_roundtrips(tmp_path):
+    root = _store(tmp_path / "store")
+    loose = tmp_path / "loose"
+    path = loose / "vllm_rust-0.30.0/gemma4/UNIFIED.1-1.yaml"
+    path.parent.mkdir(parents=True)
+    path.write_text(unified_history.dump_yaml({
+        "family": "gemma4", "mode": "unified",
+        "captured_with": {"vllm_rust": "0.30.0"},
+        "cases": {"UNIFIED.1-1": {
+            "capture_input": _request(), **_change()["observation"]["value"],
+        }},
+    }))
+    unified_history.update_from_loose(root, loose)
+    history = unified_history.load_store(root).histories[("gemma4", "vllm_rust")]
+    assert history.resolve("vllm_rust-0.30.0")["text_only"]["observation"] == _change()["observation"]
+    assert unified_history.update_from_loose(root, loose) == []

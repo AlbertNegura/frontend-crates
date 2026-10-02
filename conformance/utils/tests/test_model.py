@@ -286,24 +286,28 @@ def test_v2_exactly_one_reference_bucket_per_tab(model_v2):
         assert len(refs) == 1, f"{t['id']}: expected one bucket-A reference, got {len(refs)}"
 
 
-def test_unified_tab_keeps_every_captured_vllm_parser_version(model_v2):
-    """The Unified tab must show both historical Combined and current native captures."""
+def test_unified_tab_replaces_old_vllm_with_latest_captures(model_v2):
+    """Compare current Dynamo with the latest vLLM Python and Rust captures."""
     tab = _tab(model_v2, "tab-unified")
     labels = [candidate["label"] for candidate in tab["candidates"]]
-    assert "vLLM Rust 0.26.0 (stream, Combined & Unified)" in labels
-    assert "vLLM Rust 0.25.1 (stream, Combined & Unified)" in labels
-    assert "vLLM Python 0.25.1 (batch, Combined)" in labels
-    assert "vLLM Python 0.26.0 (batch, Combined)" in labels
+    assert "vLLM Rust 0.30.0 (stream, Combined & Unified)" in labels
+    assert not any("vLLM Rust 0.2" in label for label in labels)
+    rust = next(candidate for candidate in tab["candidates"] if candidate["key"] == "vllm_rust@0.30.0")
+    assert rust["default_bucket"] == "B"
+    assert "vLLM Python 0.30.0 (batch, Combined & Unified)" in labels
+    assert not any("vLLM Python 0.2" in label for label in labels)
+    python = next(candidate for candidate in tab["candidates"] if candidate["key"] == "vllm_python@0.30.0")
+    assert python["default_bucket"] == "B"
 
     muse = next(row for row in tab["rows"] if row["family"] == "muse_glimmer")
     peer_keys = {candidate["key"] for candidate in tab["candidates"] if candidate["impl"] == "vllm"}
     assert all(
-        all(cell["cmp"][key].get("na") == 1 for key in peer_keys)
+        cell["cmp"]["vllm_rust@0.30.0"].get("na") == 1
         for cell in muse["cells"].values()
     )
     muse_tip = next(iter(muse["cells"].values()))["tooltip"]
-    native = next(candidate for candidate in muse_tip["candidates"] if candidate["key"] == "vllm_rust@0.26.0")
-    assert native["block"]["unavailable"] == "vLLM Rust 0.26.0 (stream, Combined & Unified) has no parser for muse_glimmer"
+    native = next(candidate for candidate in muse_tip["candidates"] if candidate["key"] == "vllm_rust@0.30.0")
+    assert native["block"]["unavailable"] == "vLLM Rust 0.30.0 (stream, Combined & Unified) has no parser for muse_glimmer"
 
 
 def test_unified_default_dynamo_keeps_capture_identity_internal_and_release_history_visible(model_v2):
@@ -803,11 +807,11 @@ def test_unified_tab_marks_uncomparable_vllm_cases_na(model_v2):
     """Historical output without its original request cannot establish parity."""
     tab = _tab(model_v2, "tab-unified")
     peer_keys = {candidate["key"] for candidate in tab["candidates"] if candidate["impl"] == "vllm"}
-    assert peer_keys == {"vllm", "vllm_python@0.26.0", "vllm_rust", "vllm_rust@0.26.0"}
+    assert peer_keys == {"vllm_python@0.30.0", "vllm_rust@0.30.0"}
     for row in tab["rows"]:
         for key in peer_keys:
             unavailable = [cell["cmp"][key].get("na") == 1 for cell in leaf_cells(row).values()]
-            if row["family"] == "muse_glimmer":
+            if row["family"] == "muse_glimmer" and key == "vllm_rust@0.30.0":
                 assert all(unavailable), f"{key} must say n/a for Muse"
                 continue
             for scenario, is_unavailable in zip(leaf_cells(row), unavailable):
@@ -818,7 +822,7 @@ def test_unified_tab_marks_uncomparable_vllm_cases_na(model_v2):
                 assert (
                     "not captured at" in reason
                     or "has no parser" in reason
-                    or reason.startswith(("Capture stimulus unavailable:", "Capture stimulus mismatch ("))
+                    or reason.startswith(("Capture stimulus unavailable:", "Capture stimulus mismatch (", "Peer harness supports only"))
                 ), reason
                 assert "events" not in peer["block"]
                 comparison = leaf_cells(row)[scenario]["cmp"][key]
@@ -833,7 +837,7 @@ def test_unified_tab_marks_uncomparable_vllm_cases_na(model_v2):
             cell = gemma["cells"][scenario]
             assert cell["cmp"][key].get("na") == 1
             peer = next(candidate for candidate in cell["tooltip"]["candidates"] if candidate["key"] == key)
-            assert "this case postdates that capture" in peer["block"]["unavailable"]
+            assert "unsupported request: init" in peer["block"]["unavailable"]
 
 
 _IMPL_KEYS = ("dynamo_v1", "dynamo_v2", "vllm_rust", "vllm_python", "sglang_python")

@@ -1,0 +1,5043 @@
+provenance:
+  status: legacy
+  captured_with:
+    vllm_python: 0.30.0
+document:
+  mode: unified
+changes:
+  arg_json_null_anyof:
+    stimulus:
+      ref: current
+      semantic_sha256: 79bc00bc7bcbb5d76b0ce230c7e837d80fcfd08d2249499a8c1ac52dc1be24f7
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: null
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.7-4.anyof
+  arg_json_null_const:
+    stimulus:
+      ref: current
+      semantic_sha256: 74a0b404d06414aed5f7d5728a7a6c413e0442924b100c5554b038db2d77b7d5
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: null
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.7-4.const
+  arg_json_null_nullable:
+    stimulus:
+      ref: current
+      semantic_sha256: 5ebd57cc22cbf6762fdf50ec65a615f2c7603c7d6002889a7fb634efdd519d97
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: null
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.7-4.nullable
+  arg_json_null_oneof:
+    stimulus:
+      ref: current
+      semantic_sha256: ac03150dfb907e34e7503d8b89dc45dd49e3e55708854a58b6441c92a85d8c5d
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: null
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.7-4.oneof
+  arg_marker_in_string:
+    stimulus:
+      ref: current
+      semantic_sha256: 416e2616cf21f289c06eaedaf9912a9f72fbc85a7f098ee155c3be6d051fa054
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: run
+          arguments:
+            cmd: git log </atem:function_calls> --oneline
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=run<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.7-2
+  arg_string_null:
+    stimulus:
+      ref: current
+      semantic_sha256: 152bb15f3a7f3244e746b17072a03af9b15d2281b878d55fbe760a26049dcb6c
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: 'null'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.7-5
+  arg_string_null_const:
+    stimulus:
+      ref: current
+      semantic_sha256: c324ccf31604a7ec5347fdb3e8794a91dd49b15d8ec93ce203667ddce780b4da
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: 'null'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.7-5.const
+  arg_string_null_enum:
+    stimulus:
+      ref: current
+      semantic_sha256: 4f001079d6dd58d50ec3c7eaa4b8c41027fbe2310f210781d47ed706f5d70042
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: 'null'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.7-5.enum
+  arg_string_null_sibling_anyof:
+    stimulus:
+      ref: current
+      semantic_sha256: afada5af865e9b20a751369fed2340738fe3b82824f77dd151c64d3708cd2b05
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: 'null'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.7-5.sibling_anyof
+  arg_string_null_sibling_oneof:
+    stimulus:
+      ref: current
+      semantic_sha256: ade6847890ab6318d71d74afbe24fd5e21f67e3508dabc915b97e0585e7720ff
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: 'null'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.7-5.sibling_oneof
+  arg_string_null_union:
+    stimulus:
+      ref: current
+      semantic_sha256: 02e928f1899d7e4d08c17ac8432067f0f6e9b927c958535243bd1926ded7d632
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: 'null'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.7-5.union
+  arg_string_null_untyped_branch:
+    stimulus:
+      ref: current
+      semantic_sha256: 16d534f1868140367a7466bfc5901fc2891ebb19dd2a16f7334e89ce5bffa8e0
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: 'null'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.7-5.untyped_branch
+  arg_unicode:
+    stimulus:
+      ref: current
+      semantic_sha256: 1e66b1f2321f4255ad5c05602312be62e710ba8e3ed03c2ad7da2bacf7bce591
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: São Paulo 東京
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.7-1
+  content_then_reason:
+    stimulus:
+      ref: current
+      semantic_sha256: e0e8d67f0a3bebb807f360c640b92008494ec53cb5bfd07ff78acbb15c511925
+    observation:
+      value:
+        assembled:
+        - kind: text
+          text: 'Hello there. '
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: 'Hello there. '
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: let me recall
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: The capital is Paris.
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.11-7
+  content_then_reason_then_tool:
+    stimulus:
+      ref: current
+      semantic_sha256: a5212f3418bf2b0a6757e079f45c12b34916a8f5cd7215007a7182e2d6026cd1
+    observation:
+      value:
+        assembled:
+        - kind: text
+          text: 'Sure, one sec. '
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: Paris
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: 'Sure, one sec. '
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: checking the forecast
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.11-6
+  deepseek_v41_mixed_control_text_in_string:
+    stimulus:
+      ref: current
+      semantic_sha256: 66e81e8f4c11497934b0e8691dbee4134cfb1d8ef2b291338dfec1b36f31a589
+    observation:
+      value:
+        assembled:
+        - kind: reasoning
+          text: quoted
+        - kind: tool_call
+          name: f
+          arguments: {}
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=f<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: quoted
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.7-3
+  empty_args:
+    stimulus:
+      ref: current
+      semantic_sha256: b729f25ebecd348771a03fa5a46e3e72269721efc204be9e7486c4f69b594dcc
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments: {}
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.6-1
+  guided_json_after_reasoning:
+    stimulus:
+      inline:
+        input: '<|start|>assistant to=self<|message|>checking<|eom|>[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: <|start|>
+        - delta_text: assistant to=self
+        - delta_text: <|message|>
+        - delta_text: checking
+        - delta_text: <|eom|>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: 232b788aca902b6cf707bc5a66ab463eb0ff01adaf51dd71cc62fb762991cb50
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.30-6
+  guided_json_array_argument:
+    stimulus:
+      inline:
+        input: '[{"name": "sum_values", "arguments": {"values": [2, 3, 5]}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '[{"name": "sum_values", "arguments": {"values": [2, 3, 5]}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: 9332ba5806b780242875c1ad7871d159aeb3b699db876e8e8b1420bc11900113
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.30-5
+  guided_json_bare_tool_header_recovers_inside_a_thought:
+    stimulus:
+      inline:
+        input: 'thinking to=get_weather<|message|>[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: thinking to=get_weather
+        - delta_text: <|message|>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: cfd905172fac6bde3eb7c53423da0b41aeb98d6c50eebcd6acc7376ee1a51eb0
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init, finish_reason'
+    case_key: UNIFIED.34-7
+  guided_json_escaped_string_args:
+    stimulus:
+      inline:
+        input: '{"cmd": "echo \"雪\" > C:\\tmp\\a.txt"}'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '{"cmd": "echo \"雪\" > C:\\tmp\\a.txt"}'
+        - delta_text: ‹finish›
+      semantic_sha256: 288cf935e93c28a1ea8fe1d3b5d7141294c2b30f0efd542e48f964055acb9f88
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.30-4
+  guided_json_gt_in_argument_bare_opener:
+    stimulus:
+      inline:
+        input: '<atem:invoke name="[{"name": "get_weather", "arguments": {"city": "a > b"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '<atem:invoke name="[{"name": "get_weather", "arguments": {"city": "a >'
+        - delta_text: ' b"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: 70a5344e49159c7e38508d8e82bbe5431f929ed7770387000fe47da60c1bd254
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.30-13
+  guided_json_gt_in_argument_trailing_close:
+    stimulus:
+      inline:
+        input: '[{"name": "get_weather", "arguments": {"city": "a > b"}}]<|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "a > b"}}]'
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: 8042c08306bf6343295175cde500bee702d8c6f822c1ac4e751c170b12fe079a
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.30-11
+  guided_json_gt_in_argument_wrapped:
+    stimulus:
+      inline:
+        input: '<|start|>assistant to=NAMEX<|message|><atem:function_calls>[{"name": "get_weather", "arguments": {"city": "a > b"}}]<|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: <|start|>
+        - delta_text: assistant to=NAMEX
+        - delta_text: <|message|>
+        - delta_text: <atem:function_calls>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "a > b"}}]'
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: d2eb1b5fac9726b476297fd5acacaf9be7890c43da7ca9b6de2408874f8b976b
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.30-12
+  guided_json_invalid_call:
+    stimulus:
+      inline:
+        input: '{"unexpected": "shape"}'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '{"unexpected": "shape"}'
+        - delta_text: ‹finish›
+      semantic_sha256: 1787dd6a92e2555cb013789854a4738f9a0d789c60bece52da36a02c0365e59b
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.31-1
+  guided_json_list_with_broken_element:
+    stimulus:
+      inline:
+        input: '[{"name": "get_weather", "arguments": {"city": "Paris"}}, {"name": "run", "arguments": {"cmd": ]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}, {"name": "run", "arguments": {"cmd": ]'
+        - delta_text: ‹finish›
+      semantic_sha256: 9aa784d846cdc81126072bc690e7d698576ea450c7bb094c692a7726df55b17d
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.31-4
+  guided_json_malformed_json:
+    stimulus:
+      inline:
+        input: '{"name": "get_weather", "arguments": {"city": "Par'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '{"name": "get_weather", "arguments": {"city": "Par'
+        - delta_text: ‹finish›
+      semantic_sha256: 4b80f8e7fb443a19a6581a424fca6ab0f2354dd5f9935132b06fd36618e51c1e
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.31-2
+  guided_json_marker_inside_argument:
+    stimulus:
+      inline:
+        input: '[{"name": "log", "arguments": {"note": "<|eom|>"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '[{"name": "log", "arguments": {"note": "'
+        - delta_text: <|eom|>
+        - delta_text: '"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: 221c8045c40c575ae1448420c72d28aac4c5a4b2607f0f09937a25dd3a114132
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.30-7
+  guided_json_named_tool:
+    stimulus:
+      inline:
+        input: '{"city": "Paris"}'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '{"city": "Paris"}'
+        - delta_text: ‹finish›
+      semantic_sha256: 32f253f997cefbc66137fd169ca0144928bc26a1f5d7f66c23e706d3a17d7269
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.30-1
+  guided_json_narrated_invoke_in_reasoning:
+    stimulus:
+      inline:
+        input: '<|start|>assistant to=self<|message|>I''ll use <|start|>assistant to=NAMEX<|message|><atem:function_calls> next<|eom|>[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: <|start|>
+        - delta_text: assistant to=self
+        - delta_text: <|message|>
+        - delta_text: 'I''ll use '
+        - delta_text: <|start|>
+        - delta_text: assistant to=NAMEX
+        - delta_text: <|message|>
+        - delta_text: <atem:function_calls>
+        - delta_text: ' next'
+        - delta_text: <|eom|>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: 27064ea3180f5f7faee7b9c081ef4de008873dc7c21b7583f507b06958b8910a
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.34-1
+  guided_json_narrated_prefix_inside_reasoning:
+    stimulus:
+      inline:
+        input: '<|start|>assistant to=self<|message|>I''ll call <atem:invoke name="get_weather<|eom|>[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: <|start|>
+        - delta_text: assistant to=self
+        - delta_text: <|message|>
+        - delta_text: 'I''ll call '
+        - delta_text: <atem:invoke name="get_weather<|eom|>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: 04d9cffa111278220023a97245eaade2d1581f3352cbc8f4509b3279a3249cd0
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.34-5
+  guided_json_native_markup_only:
+    stimulus:
+      inline:
+        input: '<|start|>assistant to=get_weather<|message|><atem:function_calls>
+
+          <atem:invoke name="get_weather">
+
+          <atem:parameter name="city">Paris</atem:parameter>
+
+          </atem:invoke>
+
+          </atem:function_calls><|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: <|start|>
+        - delta_text: assistant to=get_weather
+        - delta_text: <|message|>
+        - delta_text: <atem:function_calls>
+        - delta_text: '
+
+            '
+        - delta_text: <atem:invoke name="get_weather">
+        - delta_text: '
+
+            '
+        - delta_text: <atem:parameter name="city">
+        - delta_text: Paris
+        - delta_text: </atem:parameter>
+        - delta_text: '
+
+            '
+        - delta_text: </atem:invoke>
+        - delta_text: '
+
+            '
+        - delta_text: </atem:function_calls>
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: 738f1674fb7c8e3e4205144f4c60be2eefc3ffeab8879928b98beb85062490b6
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.32-5
+  guided_json_orphan_reason_close_before_payload:
+    stimulus:
+      inline:
+        input: '<|eom|>[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: <|eom|>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: 50319b206c788ce65d2c0123a73df4cfe09b0fb69260869e59e7d1558443f0e4
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.34-3
+  guided_json_orphan_tool_close_before_payload:
+    stimulus:
+      inline:
+        input: '</atem:function_calls>[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: </atem:function_calls>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: 9effdcc6496bb85edbff08cc17ba0bdfcbdd167dcf657314066e320f22232071
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.32-4
+  guided_json_partial_calls:
+    stimulus:
+      inline:
+        input: '[{"name": "get_weather", "arguments": {"city": "Paris"}}, {"arguments": {"city": "Tokyo"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}, {"arguments": {"city": "Tokyo"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: 861aa1a458693d7a539be94913b64df9773db16223848a78bf199c88d2b7ccf2
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.31-3
+  guided_json_prose_before_reasoning:
+    stimulus:
+      inline:
+        input: 'Sure. <|start|>assistant to=self<|message|>checking<|eom|>[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: 'Sure. '
+        - delta_text: <|start|>
+        - delta_text: assistant to=self
+        - delta_text: <|message|>
+        - delta_text: checking
+        - delta_text: <|eom|>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: ab62280197fb9305c58b1565f52e71978fbb8e2c380f84cded005f1cecde193c
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.34-2
+  guided_json_quoted_bare_header_after_payload:
+    stimulus:
+      inline:
+        input: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]I mean to=self<|message|>literal<|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]I mean to=self'
+        - delta_text: <|message|>
+        - delta_text: literal
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: 2b0f16cb3ae1387fb14b765241e6e0ddb42258f576047ad427cae6ab050f80a9
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init, finish_reason'
+    case_key: UNIFIED.35-2
+  guided_json_quoted_bare_header_in_answer:
+    stimulus:
+      inline:
+        input: 'I mean to=self<|message|>literal<|eom|>[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: I mean to=self
+        - delta_text: <|message|>
+        - delta_text: literal
+        - delta_text: <|eom|>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: 6ae433ef46005f4d2d83fe3a4df12104de03a3f1d64cc9b1b61ab16727bdab40
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init, finish_reason'
+    case_key: UNIFIED.35-1
+  guided_json_quoted_bare_tool_header_in_answer:
+    stimulus:
+      inline:
+        input: 'I mean to=get_weather<|message|>literal<|eom|>[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: I mean to=get_weather
+        - delta_text: <|message|>
+        - delta_text: literal
+        - delta_text: <|eom|>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: 0ce84905a5cf0f1c424a800e9b15fdc68b87ba78c3492ffc0f615932b33bc220
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init, finish_reason'
+    case_key: UNIFIED.muse-1
+  guided_json_required_tool:
+    stimulus:
+      inline:
+        input: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: 1d46b195218a1d4890f696fc097fc90f0e3207942b2bf745c774620eac3db781
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.30-2
+  guided_json_schema_error_nameless_element_bare_opener:
+    stimulus:
+      inline:
+        input: '<atem:invoke name="[{"name": "get_weather", "arguments": {"city": "Paris"}}, {"arguments": {}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '<atem:invoke name="[{"name": "get_weather", "arguments": {"city": "Paris"}}, {"arguments": {}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: 366287eb2f86964a30f85405030e1f36585624ccb808451d10f8083d0fddbbe4
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.33-9
+  guided_json_schema_error_nameless_element_trailing_close:
+    stimulus:
+      inline:
+        input: '[{"name": "get_weather", "arguments": {"city": "Paris"}}, {"arguments": {}}]<|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}, {"arguments": {}}]'
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: 7fc1d73e485d8aeb40c2b9e9563d7506bd100a225276acdc8ba3be4446192de5
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.33-7
+  guided_json_schema_error_nameless_element_wrapped:
+    stimulus:
+      inline:
+        input: '<|start|>assistant to=NAMEX<|message|><atem:function_calls>[{"name": "get_weather", "arguments": {"city": "Paris"}}, {"arguments": {}}]<|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: <|start|>
+        - delta_text: assistant to=NAMEX
+        - delta_text: <|message|>
+        - delta_text: <atem:function_calls>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}, {"arguments": {}}]'
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: f9cab59b6428bdcbf93bd23c3a70b40892045e9b1bab17d1853aa8acfb1a497f
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.33-8
+  guided_json_schema_error_not_a_call_bare_opener:
+    stimulus:
+      inline:
+        input: '<atem:invoke name="{"unexpected": "shape"}'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '<atem:invoke name="{"unexpected": "shape"}'
+        - delta_text: ‹finish›
+      semantic_sha256: 0d01361299738bbd1394bc29b838be146f9fddca004cebd30de7e8ce6e25f9a5
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.33-6
+  guided_json_schema_error_not_a_call_trailing_close:
+    stimulus:
+      inline:
+        input: '{"unexpected": "shape"}<|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '{"unexpected": "shape"}'
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: 3209605801b89805f5e4a30d6c4b7c9f8939b65752cb1db2937e828f62700232
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.33-4
+  guided_json_schema_error_not_a_call_wrapped:
+    stimulus:
+      inline:
+        input: '<|start|>assistant to=NAMEX<|message|><atem:function_calls>{"unexpected": "shape"}<|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: <|start|>
+        - delta_text: assistant to=NAMEX
+        - delta_text: <|message|>
+        - delta_text: <atem:function_calls>
+        - delta_text: '{"unexpected": "shape"}'
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: a2ef449f81b8362fdb91dc1651c1c0eafa6f0811a461ca7c3f07382700c08fae
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.33-5
+  guided_json_stray_prefix_before_reasoning:
+    stimulus:
+      inline:
+        input: '<atem:invoke name="<|start|>assistant to=self<|message|>secret<|eom|>[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: <atem:invoke name="<|start|>
+        - delta_text: assistant to=self
+        - delta_text: <|message|>
+        - delta_text: secret
+        - delta_text: <|eom|>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: 2e65eb6398bc3a676b7b0755a585e255cc57a42afe545620ae18cb36ee8ff717
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.34-4
+  guided_json_syntax_error_bare_opener:
+    stimulus:
+      inline:
+        input: '<atem:invoke name="[{"name": "get_weather", "arguments": {"city": '
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '<atem:invoke name="[{"name": "get_weather", "arguments": {"city": '
+        - delta_text: ‹finish›
+      semantic_sha256: a68d862ecb06de5beb68dd24fbee353ba2e8ad3f37b84e1711d9d6a810195da4
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.33-3
+  guided_json_syntax_error_trailing_close:
+    stimulus:
+      inline:
+        input: '[{"name": "get_weather", "arguments": {"city": <|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": '
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: 431bf80e3b20d1b075843b1be812e2f35cee14af004f2c676aadcb084bdcf805
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.33-1
+  guided_json_syntax_error_wrapped:
+    stimulus:
+      inline:
+        input: '<|start|>assistant to=NAMEX<|message|><atem:function_calls>[{"name": "get_weather", "arguments": {"city": <|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: <|start|>
+        - delta_text: assistant to=NAMEX
+        - delta_text: <|message|>
+        - delta_text: <atem:function_calls>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": '
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: 1c8199178545b0251bcac6727ff2403271b0e11657b6035d4766a81ff1c7cf6b
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.33-2
+  guided_json_tool_close_after_payload:
+    stimulus:
+      inline:
+        input: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]<|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: c63fe41415c3838aa5f9eb01a97154f6c9f9775d3069e30eab7d5b6617157d78
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.32-2
+  guided_json_tool_open_before_payload:
+    stimulus:
+      inline:
+        input: '<|start|>assistant to=NAMEX<|message|><atem:function_calls>[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: <|start|>
+        - delta_text: assistant to=NAMEX
+        - delta_text: <|message|>
+        - delta_text: <atem:function_calls>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: 3617a23e31b659802a9e4daf787caf08eaf6df4fcd359a23c634d5b9bc556a62
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.32-1
+  guided_json_two_calls:
+    stimulus:
+      inline:
+        input: '[{"name": "get_weather", "arguments": {"city": "Paris"}}, {"name": "run", "arguments": {"cmd": "git log"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}, {"name": "run", "arguments": {"cmd": "git log"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: ac0b248d9b9d9f325cb2386241c43746a24ad7fc3ff0a500c968cc9be8ad599d
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.30-3
+  guided_json_unterminated_reasoning_then_wrapped_payload:
+    stimulus:
+      inline:
+        input: '<|start|>assistant to=self<|message|>thinking<|start|>assistant to=NAMEX<|message|><atem:function_calls>[{"name": "get_weather", "arguments": {"city": "Paris"}}]<|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: <|start|>
+        - delta_text: assistant to=self
+        - delta_text: <|message|>
+        - delta_text: thinking
+        - delta_text: <|start|>
+        - delta_text: assistant to=NAMEX
+        - delta_text: <|message|>
+        - delta_text: <atem:function_calls>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: 22a62e2a0971d2d701f52bdbf28962c8426b21f8c28a9d811496ca943fa40bc3
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init, finish_reason'
+    case_key: UNIFIED.34-6
+  guided_json_wrapped_in_tool_markup:
+    stimulus:
+      inline:
+        input: '<|start|>assistant to=NAMEX<|message|><atem:function_calls>[{"name": "get_weather", "arguments": {"city": "Paris"}}]<|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: <|start|>
+        - delta_text: assistant to=NAMEX
+        - delta_text: <|message|>
+        - delta_text: <atem:function_calls>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: bb83c14128e039a8aff711632762cecd0b9d1cab4215a6a5718225b0d29ea131
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.32-3
+  interstitial_text:
+    stimulus:
+      ref: current
+      semantic_sha256: 8149b30eb0982921060bed030041aa84d7b8685cae63e49d8291455ae232cd37
+    observation:
+      value:
+        assembled:
+        - kind: reasoning
+          text: a
+        - kind: text
+          text: 'Here you go: '
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: Paris
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: a
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: 'Here you go: '
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.11-5
+  narrated_calls:
+    stimulus:
+      ref: current
+      semantic_sha256: 07eea82f3dbfac15e560bb09ea80e39a7854c39a1d49675320b8de82b5905eb4
+    observation:
+      value:
+        assembled:
+        - kind: text
+          text: ' then I''ll run  and '
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: Paris
+        - kind: tool_call
+          name: f
+          arguments:
+            x: '1'
+        - kind: tool_call
+          name: g
+          arguments:
+            y: '2'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: ' then I''ll run '
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: ' and '
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.8-5
+  orphan_close_after_prose:
+    stimulus:
+      ref: current
+      semantic_sha256: 18756a59a414cb3341e4797c075aba35d853ef197499129549b962e5a3c88b93
+    observation:
+      value:
+        assembled:
+        - kind: text
+          text: 'I will check that. '
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: 'I will check that. '
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.5-3
+  prefilled_reasoning_redundant_opener:
+    stimulus:
+      inline:
+        input: '<|start|>assistant to=self<|message|>checking weather<|eom|><|start|>assistant to=get_weather<|message|><atem:function_calls>
+
+          <atem:invoke name="get_weather">
+
+          <atem:parameter name="city">London</atem:parameter>
+
+          </atem:invoke>
+
+          </atem:function_calls><|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: <|start|>
+        - delta_text: assistant to=self
+        - delta_text: <|message|>
+        - delta_text: checking weather
+        - delta_text: <|eom|>
+        - delta_text: <|start|>
+        - delta_text: assistant to=get_weather
+        - delta_text: <|message|>
+        - delta_text: <atem:function_calls>
+        - delta_text: '
+
+            '
+        - delta_text: <atem:invoke name="get_weather">
+        - delta_text: '
+
+            '
+        - delta_text: <atem:parameter name="city">
+        - delta_text: London
+        - delta_text: </atem:parameter>
+        - delta_text: '
+
+            '
+        - delta_text: </atem:invoke>
+        - delta_text: '
+
+            '
+        - delta_text: </atem:function_calls>
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: 7a68162f86de2829c22c35b1b564392e293e76457ba411e09254139f3622b75e
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.41-1
+  prefilled_reasoning_then_text:
+    stimulus:
+      inline:
+        input: no tool needed<|eom|><|start|>assistant to=user<|message|>The answer is 42.<|eot|>
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: no tool needed
+        - delta_text: <|eom|>
+        - delta_text: <|start|>
+        - delta_text: assistant to=user
+        - delta_text: <|message|>
+        - delta_text: The answer is 42.
+        - delta_text: <|eot|>
+        - delta_text: ‹finish›
+      semantic_sha256: 9c9089b08f8e72a558490466b6739cd8cbf2981b886cade25e88b6f52c67f0cd
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.40-4
+  prefilled_reasoning_then_text_then_tool:
+    stimulus:
+      inline:
+        input: 'weighing options<|eom|><|start|>assistant to=user<|message|>Here''s what I found: <|eom|><|start|>assistant to=get_weather<|message|><atem:function_calls>
+
+          <atem:invoke name="get_weather">
+
+          <atem:parameter name="city">Paris</atem:parameter>
+
+          </atem:invoke>
+
+          </atem:function_calls><|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: weighing options
+        - delta_text: <|eom|>
+        - delta_text: <|start|>
+        - delta_text: assistant to=user
+        - delta_text: <|message|>
+        - delta_text: 'Here''s what I found: '
+        - delta_text: <|eom|>
+        - delta_text: <|start|>
+        - delta_text: assistant to=get_weather
+        - delta_text: <|message|>
+        - delta_text: <atem:function_calls>
+        - delta_text: '
+
+            '
+        - delta_text: <atem:invoke name="get_weather">
+        - delta_text: '
+
+            '
+        - delta_text: <atem:parameter name="city">
+        - delta_text: Paris
+        - delta_text: </atem:parameter>
+        - delta_text: '
+
+            '
+        - delta_text: </atem:invoke>
+        - delta_text: '
+
+            '
+        - delta_text: </atem:function_calls>
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: 423d4554027a2043f685283ed9317a34788ba961030d0209c870f69a06bcb680
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.40-3
+  prefilled_reasoning_truncated:
+    stimulus:
+      inline:
+        input: 'analyzing data<|eom|><|start|>assistant to=get_weather<|message|><atem:function_calls>
+
+          <atem:invoke name="get_weather">
+
+          <atem:parameter name="city">Par'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: analyzing data
+        - delta_text: <|eom|>
+        - delta_text: <|start|>
+        - delta_text: assistant to=get_weather
+        - delta_text: <|message|>
+        - delta_text: <atem:function_calls>
+        - delta_text: '
+
+            '
+        - delta_text: <atem:invoke name="get_weather">
+        - delta_text: '
+
+            '
+        - delta_text: <atem:parameter name="city">
+        - delta_text: Par
+        - delta_text: ‹finish›
+      semantic_sha256: 07af72f2d1f4d916fa9f59d5c8b763d5ef42333442ca05a1bf650567c6b6ae9d
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init, finish_reason'
+    case_key: UNIFIED.41-2
+  prefilled_reasoning_with_guided_json:
+    stimulus:
+      inline:
+        input: 'checking weather<|eom|>[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: checking weather
+        - delta_text: <|eom|>
+        - delta_text: '[{"name": "get_weather", "arguments": {"city": "Paris"}}]'
+        - delta_text: ‹finish›
+      semantic_sha256: 7011ca68360e4fcf28a607aad836017aa08b9737d887f5a72578ca426104cf9e
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.40-2
+  prefilled_reasoning_with_tool:
+    stimulus:
+      inline:
+        input: 'checking weather<|eom|><|start|>assistant to=get_weather<|message|><atem:function_calls>
+
+          <atem:invoke name="get_weather">
+
+          <atem:parameter name="city">Paris</atem:parameter>
+
+          </atem:invoke>
+
+          </atem:function_calls><|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: checking weather
+        - delta_text: <|eom|>
+        - delta_text: <|start|>
+        - delta_text: assistant to=get_weather
+        - delta_text: <|message|>
+        - delta_text: <atem:function_calls>
+        - delta_text: '
+
+            '
+        - delta_text: <atem:invoke name="get_weather">
+        - delta_text: '
+
+            '
+        - delta_text: <atem:parameter name="city">
+        - delta_text: Paris
+        - delta_text: </atem:parameter>
+        - delta_text: '
+
+            '
+        - delta_text: </atem:invoke>
+        - delta_text: '
+
+            '
+        - delta_text: </atem:function_calls>
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: 0a26b86da394b70e9c4a742433f034254798f144c6a8083cc56c8f95eeb503f0
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.40-1
+  prefilled_response_reasoning_markers_literal:
+    stimulus:
+      inline:
+        input: 'to=self<|message|>literal<|eom|> then a call<|eom|><|start|>assistant to=get_weather<|message|><atem:function_calls>
+
+          <atem:invoke name="get_weather">
+
+          <atem:parameter name="city">Paris</atem:parameter>
+
+          </atem:invoke>
+
+          </atem:function_calls><|eom|>'
+        init:
+          starting_state: None
+          tool_output_mode: Native
+          named_tool: null
+        finish_reason: stop
+        tools:
+        - name: get_weather
+          parameters:
+            type: object
+            properties:
+              city:
+                type: string
+        - name: f
+          parameters:
+            type: object
+            properties:
+              x:
+                type: string
+        - name: g
+          parameters:
+            type: object
+            properties:
+              y:
+                type: string
+        - name: run
+          parameters:
+            type: object
+            properties:
+              cmd:
+                type: string
+        - name: log
+          parameters:
+            type: object
+            properties:
+              note:
+                type: string
+        - name: sum_values
+          parameters:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: number
+        - name: functions.
+          parameters:
+            type: object
+            properties: {}
+        chunks:
+        - delta_text: to=self
+        - delta_text: <|message|>
+        - delta_text: literal
+        - delta_text: <|eom|>
+        - delta_text: ' then a call'
+        - delta_text: <|eom|>
+        - delta_text: <|start|>
+        - delta_text: assistant to=get_weather
+        - delta_text: <|message|>
+        - delta_text: <atem:function_calls>
+        - delta_text: '
+
+            '
+        - delta_text: <atem:invoke name="get_weather">
+        - delta_text: '
+
+            '
+        - delta_text: <atem:parameter name="city">
+        - delta_text: Paris
+        - delta_text: </atem:parameter>
+        - delta_text: '
+
+            '
+        - delta_text: </atem:invoke>
+        - delta_text: '
+
+            '
+        - delta_text: </atem:function_calls>
+        - delta_text: <|eom|>
+        - delta_text: ‹finish›
+      semantic_sha256: 1539e4bdd3db4f361961b467f45b65c9246f7c8c5bd7e548817d89830aeff933
+    observation:
+      unavailable:
+        code: legacy_unclassified
+        detail: 'Peer harness supports only native/default initialization and stop termination; unsupported request: init'
+    case_key: UNIFIED.50-4
+  qwen_string_null:
+    stimulus:
+      ref: current
+      semantic_sha256: 57debb41560aeb1cc4038801e858fc46a0b1a780a37bf4c438ffa2112f3c1e7f
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: null
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.7-4
+  reason_after_tool:
+    stimulus:
+      ref: current
+      semantic_sha256: 593ba97cf6f2e9f5218e0f8b19a0bbb21292ead2e06befebc518a88c0ef3cd27
+    observation:
+      value:
+        assembled:
+        - kind: reasoning
+          text: 'Look it up.
+
+            Now answer.'
+        - kind: text
+          text: It's 18C.
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: Paris
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: Look it up.
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: Now answer.
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: It's 18C.
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.11-2
+  reason_between_calls:
+    stimulus:
+      ref: current
+      semantic_sha256: ee876969c41c3fa976801e29df90a31362e13afab1f03ed0baedcf6fbeb29c15
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: f
+          arguments:
+            x: '1'
+        - kind: tool_call
+          name: g
+          arguments:
+            y: '2'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=f<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: mid
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.11-9
+  reason_interleaved:
+    stimulus:
+      ref: current
+      semantic_sha256: f80f52cecf8f6cd12bacfe63b638e5eb15a1d47e7b782f3af731ff9508edad39
+    observation:
+      value:
+        assembled:
+        - kind: reasoning
+          text: 'A
+
+            B'
+        - kind: tool_call
+          name: f
+          arguments:
+            x: '1'
+        - kind: tool_call
+          name: g
+          arguments:
+            y: '2'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: A
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=f<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: B
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.11-3
+  reason_markup_in_arg:
+    stimulus:
+      ref: current
+      semantic_sha256: b33b749cf33288ae566693cb1dc1590b500b98364381061ef956bf995440e2d9
+    observation:
+      value:
+        assembled:
+        - kind: reasoning
+          text: 'reconsider</atem:parameter>
+
+            </atem:invoke>
+
+            </atem:function_calls>'
+        - kind: text
+          text: '<|start|>assistant to=log<|message|><atem:function_calls>
+
+            <atem:invoke name="log">
+
+            <atem:parameter name="note">'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=log<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: reconsider
+        - expected:
+          - kind: reasoning
+            text: </atem:parameter>
+        - expected:
+          - kind: reasoning
+            text: '
+
+              '
+        - expected:
+          - kind: reasoning
+            text: </atem:invoke>
+        - expected:
+          - kind: reasoning
+            text: '
+
+              '
+        - expected:
+          - kind: reasoning
+            text: </atem:function_calls>
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.12-1
+  reason_markup_in_arg_with_text:
+    stimulus:
+      ref: current
+      semantic_sha256: 6b63e7df972791caa34ba476ab6c3ff20bb61ccf8117f0ad8659947455af6fb5
+    observation:
+      value:
+        assembled:
+        - kind: text
+          text: '<|start|>assistant to=user<|message|>Logging now: <|eom|><|start|>assistant to=log<|message|><atem:function_calls>
+
+            <atem:invoke name="log">
+
+            <atem:parameter name="note"><|start|>assistant to=user<|message|> done.<|eom|>'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: 'Logging now: '
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=log<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: reconsider
+        - expected:
+          - kind: reasoning
+            text: </atem:parameter>
+        - expected:
+          - kind: reasoning
+            text: '
+
+              '
+        - expected:
+          - kind: reasoning
+            text: </atem:invoke>
+        - expected:
+          - kind: reasoning
+            text: '
+
+              '
+        - expected:
+          - kind: reasoning
+            text: </atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: ' done.'
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.12-3
+  reason_only:
+    stimulus:
+      ref: current
+      semantic_sha256: e6bef04fd51dee2c7a72b12d1b4883f997f5faf4b2b6bbb93978d026f4766695
+    observation:
+      value:
+        assembled:
+        - kind: reasoning
+          text: just thinking, no answer
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: just thinking, no answer
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.10-1
+  reason_then_content:
+    stimulus:
+      ref: current
+      semantic_sha256: f439424769087bf1eccdf6ad19840071decda01d395b3558a3e0801ad2911bf5
+    observation:
+      value:
+        assembled:
+        - kind: reasoning
+          text: let me think
+        - kind: text
+          text: The answer is 42.
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: let me think
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: The answer is 42.
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.10-2
+  reason_then_tool:
+    stimulus:
+      ref: current
+      semantic_sha256: c474df582788cc72058028b728970cd673bdec969e57066a1ebdfc4d37a35b2c
+    observation:
+      value:
+        assembled:
+        - kind: reasoning
+          text: Check weather.
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: Paris
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: Check weather.
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.11-1
+  reason_tool_reason_tool_reason:
+    stimulus:
+      ref: current
+      semantic_sha256: d92c882f1e26d4d88a094c50831e64fd6f20a4e388024cc72d48035380476e7f
+    observation:
+      value:
+        assembled:
+        - kind: reasoning
+          text: 'A
+
+            B
+
+            C'
+        - kind: tool_call
+          name: f
+          arguments:
+            x: '1'
+        - kind: tool_call
+          name: g
+          arguments:
+            y: '2'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: A
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=f<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: B
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: C
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.11-8
+  reason_tool_text_reason_tool:
+    stimulus:
+      ref: current
+      semantic_sha256: dbc9c6badbc310e51fcd9445bc7297355e25a01288512362524cc8491f90632c
+    observation:
+      value:
+        assembled:
+        - kind: reasoning
+          text: 'A
+
+            B'
+        - kind: text
+          text: working on it
+        - kind: tool_call
+          name: f
+          arguments:
+            x: '1'
+        - kind: tool_call
+          name: g
+          arguments:
+            y: '2'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: A
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=f<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: working on it
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: B
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.11-4
+  reason_unterminated:
+    stimulus:
+      ref: current
+      semantic_sha256: 9ea322bd442ec9f43d41b97e7cfe1a0d09ef095cdd4c0383292c21ca439be89d
+    observation:
+      value:
+        assembled:
+        - kind: reasoning
+          text: thinking but stream ends
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: thinking but stream ends
+        - expected: []
+    case_key: UNIFIED.10-4
+  text_before_tool:
+    stimulus:
+      ref: current
+      semantic_sha256: a9d855ec61b91888c62c8d0c411d040a58bc7a60f91094ca553e04b9919d0494
+    observation:
+      value:
+        assembled:
+        - kind: text
+          text: 'On it: '
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: Paris
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: 'On it: '
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.8-1
+  text_between_calls:
+    stimulus:
+      ref: current
+      semantic_sha256: 1e037101034748a5bb0e008ca78fe69e399bd30b69b04b25359287ba57e1da76
+    observation:
+      value:
+        assembled:
+        - kind: text
+          text: ' then '
+        - kind: tool_call
+          name: f
+          arguments:
+            x: '1'
+        - kind: tool_call
+          name: g
+          arguments:
+            y: '2'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=f<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: ' then '
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.8-4
+  text_only:
+    stimulus:
+      ref: current
+      semantic_sha256: e48c31b03a97bd69e2fbdec62b94fc4ab114f9d3fd3fefa216ba4ff6b81ea4b3
+    observation:
+      value:
+        assembled:
+        - kind: text
+          text: The answer is 42, no tools needed.
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: The answer is 42, no tools needed.
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.3-1
+  text_reason_tool_text_reason_tool:
+    stimulus:
+      ref: current
+      semantic_sha256: 6bf756d873ad89ff4e6b976169432047e1e55e7bf861fceeb5f8e03f344f97be
+    observation:
+      value:
+        assembled:
+        - kind: text
+          text: 'Sure.  and '
+        - kind: tool_call
+          name: f
+          arguments:
+            x: '1'
+        - kind: tool_call
+          name: g
+          arguments:
+            y: '2'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: 'Sure. '
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: check A
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=f<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: ' and '
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: check B
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.11-10
+  text_sandwich:
+    stimulus:
+      ref: current
+      semantic_sha256: 03aa8233467a3246b468a174cd2035aef23f1b9b4b8619b52ac03d9e0c311e98
+    observation:
+      value:
+        assembled:
+        - kind: text
+          text: Before.  After.
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: Paris
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: 'Before. '
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: ' After.'
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.8-3
+  tool_block_never_closed_then_text:
+    stimulus:
+      ref: current
+      semantic_sha256: 20efd98acb60d47f210d66b7ada5c11aa0cc7bde75cdef8b7fde533ff727f8dc
+    observation:
+      value:
+        assembled:
+        - kind: text
+          text: <|start|>assistant to=NAMEX<|message|><atem:function_calls>still thinking about it
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=NAMEX<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.4-1
+  tool_in_reason:
+    stimulus:
+      ref: current
+      semantic_sha256: 8ead35b22972449a30d89fcbcab03ed9a0973ec61b25fc35e58c72aa7f85b566
+    observation:
+      value:
+        assembled:
+        - kind: reasoning
+          text: "I should check. to=get_weather<|message|><atem:function_calls>\n<atem:invoke name=\"get_weather\">\n<atem:parameter name=\"city\">Paris</atem:parameter>\n</atem:invoke>\n</atem:function_calls>\n now answer\nI should check. "
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: I should check.
+        - expected:
+          - kind: reasoning
+            text: ' '
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: ' now answer'
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.12-2
+  tool_in_reason_with_text:
+    stimulus:
+      ref: current
+      semantic_sha256: db74a172bb3cdcb2525929c5841ae5b60b949dbebf47c5384347631ce8a98144
+    observation:
+      value:
+        assembled:
+        - kind: reasoning
+          text: 'I should check. '
+        - kind: text
+          text: 'Sure. '
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: 'Sure. '
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: I should check.
+        - expected:
+          - kind: reasoning
+            text: ' '
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: ' now answer'
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: ' Here you go.'
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.12-4
+  tool_markup_only_emits_nothing:
+    stimulus:
+      ref: current
+      semantic_sha256: 0d2dace69ffcf23a11870231f21763ff0b19444c3b56d077af74120212f1f5a0
+    observation:
+      value:
+        assembled:
+        - kind: text
+          text: <|eom|>
+        chunks:
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.4-2
+  tool_no_close:
+    stimulus:
+      ref: current
+      semantic_sha256: f441ebcc13eef3dd6fac4b594dc3087467af1fada6172764e96cf54b83fdb32f
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: Paris
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.5-2
+  tool_only:
+    stimulus:
+      ref: current
+      semantic_sha256: 738f1674fb7c8e3e4205144f4c60be2eefc3ffeab8879928b98beb85062490b6
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: Paris
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.1-1
+  trailing_text_after_tool:
+    stimulus:
+      ref: current
+      semantic_sha256: ab1a9805a84a69ab37e02238ee994cb93e389f41008e35dae5106c88ba5429f4
+    observation:
+      value:
+        assembled:
+        - kind: text
+          text: The forecast shows clear skies for the rest of the week.
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: Paris
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: The forecast shows clear skies for the rest of the week.
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.8-2
+  truncated_tool_eof:
+    stimulus:
+      ref: current
+      semantic_sha256: 53a88c1830bb51718d961eb64924dd5be2c357ca19b49fd127ef7adfa751dad9
+    observation:
+      value:
+        assembled:
+        - kind: reasoning
+          text: ok
+        - kind: text
+          text: '<|start|>assistant to=get_weather<|message|><atem:function_calls>
+
+            <atem:invoke name="get_weather">
+
+            <atem:parameter name="city">Par'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: ok
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.5-1
+  two_adjacent_reason_spans:
+    stimulus:
+      ref: current
+      semantic_sha256: a9fcb6ebc0c88e1787664f139edd59871d4dbf45d1d99621923123fb497bb9be
+    observation:
+      value:
+        assembled:
+        - kind: reasoning
+          text: 'first
+
+            second'
+        - kind: text
+          text: done
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: first
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: second
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: done
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.10-5
+  two_calls:
+    stimulus:
+      ref: current
+      semantic_sha256: 2fde160ed1dec6fb0cb956fb79ee600550fc52cbc3411836c4871f7bb616510c
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: f
+          arguments:
+            x: '1'
+        - kind: tool_call
+          name: g
+          arguments:
+            y: '2'
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=f<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.2-1
+  two_calls_same_name:
+    stimulus:
+      ref: current
+      semantic_sha256: e5c85c983d15ab01705247ceae8955b2b57d28afbb12e661fc4c611f172b5d54
+    observation:
+      value:
+        assembled:
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: Paris
+        - kind: tool_call
+          name: get_weather
+          arguments:
+            city: Tokyo
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: to=get_weather<|message|><atem:function_calls>
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.2-2
+  two_reason_spans:
+    stimulus:
+      ref: current
+      semantic_sha256: 8b611579b746b4e2867477b6c12c16a91eab5fe97104c056d1f17196d59cfda9
+    observation:
+      value:
+        assembled:
+        - kind: reasoning
+          text: 'first thought
+
+            second thought'
+        - kind: text
+          text: 'interlude '
+        chunks:
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: first thought
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: 'interlude '
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: reasoning
+            text: second thought
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected: []
+        - expected:
+          - kind: text
+            text: done
+        - expected: []
+        - expected: []
+    case_key: UNIFIED.10-3
+metadata_changes: {}
+document_overrides: {}

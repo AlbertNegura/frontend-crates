@@ -24,12 +24,14 @@ def test_streaming_peer_failures_are_preserved_for_both_terminal_schedules(tmp_p
     loop = RUST_MAIN.split("// Streaming: fresh parser, per-chunk deltas.", 1)[1].split("results.insert(", 1)[0]
     source = r'''
 type Value = String;
+struct DecodedText;
+impl DecodedText { fn unattributed(text: String) -> String { text } }
 #[derive(Default)]
 struct UnifiedParserOutput { events: Vec<String> }
-struct Case { family: String, chunks: Vec<String>, terminal_step: bool }
+struct Case { tools: Vec<()>, family: String, chunks: Vec<String>, terminal_step: bool }
 struct Parser { fail_finish: bool }
 impl Parser {
-    fn parse_into(&mut self, text: &str, out: &mut UnifiedParserOutput) -> Result<(), &'static str> {
+    fn parse_into(&mut self, text: String, out: &mut UnifiedParserOutput) -> Result<(), &'static str> {
         out.events.push(text.to_string());
         if text == "bad" { Err("push failure") } else { Ok(()) }
     }
@@ -38,7 +40,7 @@ impl Parser {
         else { Ok(UnifiedParserOutput { events: vec!["finished".into()] }) }
     }
 }
-fn make_parser(family: &str) -> (Parser, ()) {
+fn make_parser(family: &str, _tools: &[()]) -> (Parser, ()) {
     (Parser { fail_finish: family == "fail_finish" }, ())
 }
 fn deltas_to_json(events: &[String]) -> Vec<Value> { events.to_vec() }
@@ -51,6 +53,7 @@ fn main() {
         for fail_push in [false, true] {
             for fail_finish in [false, true] {
                 let case = || Case {
+                    tools: vec![],
                     family: if fail_finish { "fail_finish" } else { "ok" }.into(),
                     chunks: vec![if fail_push { "bad" } else { "good" }.into()],
                     terminal_step,

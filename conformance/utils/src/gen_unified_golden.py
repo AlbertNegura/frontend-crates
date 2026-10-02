@@ -477,26 +477,10 @@ GUIDED_PARTIAL_CALLS = ('[{"name": "get_weather", "arguments": {"city": "Paris"}
                         '{"arguments": {"city": "Tokyo"}}]')
 GUIDED_UNSUPPORTED = D("UNSUPPORTED",
                        "vLLM base case doesn't emit guided JSON; conformance captures native XML only")
-# vLLM's Muse Glimmer parsers exist only in unmerged PR #51655, so no released
-# engine can be captured for this family and the cell has no measured value. The
-# annotation records the published decode spec's intent and is UNVERIFIED until a
-# release carries the parser.
-V_MUSE = {
-    "verdict": "match",
-    "note": "vLLM muse_glimmer is unmerged (PR #51655); no released engine can be captured — unverified annotation",
-}
-
-# Families `capture_vllm_unified.py` has no entry for. The Unified tab falls back to
-# the AUTHORED `expect.vllm` whenever a capture is missing, so for these families it
-# falls back on EVERY case and draws the same plain `expected: MATCH` a captured
-# family earns. Carrying the caveat only on the cases that happened to need a
-# per-family verdict published the other 22 as if an engine had produced them.
-VLLM_UNCAPTURABLE = {
-    "deepseek_v41": D("UNSUPPORTED", "No V4.1 peer capture is recorded."),
-    "deepseek_v4": D("UNSUPPORTED", "no released vLLM UnifiedParser capture for DeepSeek V4"),
-    "muse_glimmer": V_MUSE,
-    "kimi_k3": D("UNSUPPORTED", "no released vLLM UnifiedParser capture for Kimi K3"),
-}
+# These are authored annotations, not measured results. All families now have
+# vLLM Python 0.30.0 capture support; consult those captures for actual behavior.
+V_UNVERIFIED = D("UNVERIFIED", "Authored annotation; consult the versioned live capture")
+VLLM_UNCAPTURABLE = {}
 
 
 # --- CLEAN scenarios: same segments for every family, input is templated ------
@@ -552,8 +536,8 @@ CLEAN = [
      "Arbitrary visible prose AFTER the tool call (the point is it could be ANY content, so it must survive). Policy P1 (best-effort recovery) — trailing model text is preserved, not suppressed.",
      ["P1"], [("tool", "get_weather", "city", "Paris"),
               ("text", "The forecast shows clear skies for the rest of the week.")],
-     {"gemma4": M, "qwen3": M, "muse_glimmer": V_MUSE,
-      "kimi_k3": VLLM_UNCAPTURABLE["kimi_k3"],
+     {"gemma4": M, "qwen3": M, "muse_glimmer": V_UNVERIFIED,
+      "kimi_k3": V_UNVERIFIED,
       "kimi_k2": D("LOSS", "kimi config stays in a tool state and SUPPRESSES trailing text -> arbitrary content dropped; violates best-effort recovery (preserve visible prose, conformance/README.md:142)")},
      {"gemma4": M, "qwen3": M,
       "muse_glimmer": {"verdict": "match", "note": "the tool channel closes at its own `<|eom|>`, so the following `to=user` message is ordinary content"},
@@ -681,10 +665,10 @@ EDGE = [
                             "argument", [("key", "city"), ("type", "string")]
                         ) + "Par", close=False),
                         close=False),
-                    VLLM_UNCAPTURABLE["kimi_k3"],
+                    V_UNVERIFIED,
                     {"verdict": "match", "note": "P2: drop the partial XTML argument and keep preceding reasoning"}),
         "muse_glimmer": ("<|start|>assistant to=self<|message|>ok<|eom|><|start|>assistant to=get_weather<|message|><atem:function_calls>\n<atem:invoke name=\"get_weather\">\n<atem:parameter name=\"city\">Par",
-                         V_MUSE,
+                         V_UNVERIFIED,
                          {"verdict": "match", "note": "P2: the invoke never reached its `</atem:invoke>` fence, so the call is dropped and its markup never leaks; the reasoning channel is kept"}),
      }),
 
@@ -702,10 +686,10 @@ EDGE = [
         "kimi_k2": ("<think>thinking but stream ends",
                     M, {"verdict": "match", "note": "verify against v1 kimi reasoning finish() at capture time"}),
         "kimi_k3": (k3_open("think") + "thinking but stream ends",
-                    VLLM_UNCAPTURABLE["kimi_k3"],
+                    V_UNVERIFIED,
                     {"verdict": "match", "note": "open K3 think channel promoted at finish"}),
         "muse_glimmer": ("<|start|>assistant to=self<|message|>thinking but stream ends",
-                         V_MUSE,
+                         V_UNVERIFIED,
                          {"verdict": "match", "note": "the open `to=self` body is promoted as reasoning at finish, not dropped and not leaked as text"}),
      }),
 
@@ -736,11 +720,11 @@ EDGE = [
         "kimi_k3": (k3_tools(k3_call(
                         "run", 1,
                         k3_argument("cmd", "string", "git log <|close|>call<|sep|> --oneline"))),
-                    VLLM_UNCAPTURABLE["kimi_k3"],
+                    V_UNVERIFIED,
                     {"verdict": "match", "note": "typed argument owns the embedded K3 call close as data"},
                     "git log <|close|>call<|sep|> --oneline"),
         "muse_glimmer": ("<|start|>assistant to=run<|message|><atem:function_calls>\n<atem:invoke name=\"run\">\n<atem:parameter name=\"cmd\">git log </atem:function_calls> --oneline</atem:parameter>\n</atem:invoke>\n</atem:function_calls><|eom|>",
-                         V_MUSE,
+                         V_UNVERIFIED,
                          {"verdict": "match", "note": "the parameter value runs to its own `</atem:parameter>`, so the enclosing `</atem:function_calls>` inside it is data"},
                          "git log </atem:function_calls> --oneline"),
      }),
@@ -761,11 +745,11 @@ EDGE = [
                     D("LEAK", "the orphan `<|tool_call_end|>` remains in the assembled reasoning output"),
                     D("LEAK", "the split path retains the orphan `<|tool_call_end|>` in assembled reasoning")),
         "kimi_k3": ("I will check that. " + k3_close("call"),
-                    VLLM_UNCAPTURABLE["kimi_k3"],
+                    V_UNVERIFIED,
                     {"verdict": "match", "note": "orphan K3 call closer stripped after prose"}),
         # `<|eot|>` already ended the turn, so the trailing `<|eom|>` closes nothing.
          "muse_glimmer": ("<|start|>assistant to=user<|message|>I will check that. <|eot|><|eom|>",
-                          V_MUSE,
+                          V_UNVERIFIED,
                           {"verdict": "match", "note": "an orphan terminator outside any routed message is stripped, never emitted as content"}),
          "deepseek_v41": ("I will check that. </｜DSML｜ calls>", M, M),
       }),
@@ -781,9 +765,9 @@ EDGE = [
         "qwen3": ("<tool_call>\n<function=get_weather>\n</function>\n</tool_call>", M, M),
         "kimi_k2": ("<|tool_calls_section_begin|><|tool_call_begin|>functions.get_weather:0<|tool_call_argument_begin|>{}<|tool_call_end|><|tool_calls_section_end|>", M, M),
         "kimi_k3": (k3_tools(k3_call("get_weather", 1, "")),
-                    VLLM_UNCAPTURABLE["kimi_k3"], M),
+                    V_UNVERIFIED, M),
         "muse_glimmer": ("<|start|>assistant to=get_weather<|message|><atem:function_calls>\n<atem:invoke name=\"get_weather\">\n</atem:invoke>\n</atem:function_calls><|eom|>",
-                         V_MUSE, M),
+                         V_UNVERIFIED, M),
      }),
 
     ("tool_no_close",
@@ -809,10 +793,10 @@ EDGE = [
         "kimi_k3": (k3_tools(
                         k3_call("get_weather", 1, k3_argument("city", "string", "Paris"), close=False),
                         close=False),
-                    VLLM_UNCAPTURABLE["kimi_k3"],
+                    V_UNVERIFIED,
                     {"verdict": "match", "note": "complete typed arguments recover at EOF without a call close"}),
         "muse_glimmer": ("<|start|>assistant to=get_weather<|message|><atem:function_calls>\n<atem:invoke name=\"get_weather\">\n<atem:parameter name=\"city\">Paris</atem:parameter>\n</atem:invoke>\n</atem:function_calls>",
-                         V_MUSE,
+                         V_UNVERIFIED,
                          {"verdict": "match", "note": "the invoke closed its own `</atem:invoke>` fence, so the call is complete even though the message never emitted `<|eom|>`"}),
      }),
 
@@ -838,13 +822,13 @@ EDGE = [
                     "<think>reconsider</think>"),
         "kimi_k3": (k3_tools(k3_call(
                         "log", 1, k3_argument("note", "string", k3_channel("think", "reconsider")))),
-                    VLLM_UNCAPTURABLE["kimi_k3"],
+                    V_UNVERIFIED,
                     {"verdict": "match", "note": "K3 think markers inside a typed string remain argument data"},
                     k3_channel("think", "reconsider")),
         # Muse's reasoning opener is a header, not a marker pair, so the quoted
         # reasoning markup inside the value is a bare `to=self<|message|>` run.
         "muse_glimmer": ("<|start|>assistant to=log<|message|><atem:function_calls>\n<atem:invoke name=\"log\">\n<atem:parameter name=\"note\">to=self<|message|>reconsider</atem:parameter>\n</atem:invoke>\n</atem:function_calls><|eom|>",
-                         V_MUSE,
+                         V_UNVERIFIED,
                          {"verdict": "match", "note": "the header is resolved once, at the message boundary; inside an open tool body a quoted `to=self<|message|>` is argument data"},
                          "to=self<|message|>reconsider"),
      }),
@@ -870,13 +854,13 @@ EDGE = [
         "kimi_k3": (k3_open("think") + "I should check. "
                     + r_tool("kimi_k3", "get_weather", "city", "Paris", 0)
                     + " now answer" + k3_close("think"),
-                    VLLM_UNCAPTURABLE["kimi_k3"],
+                    V_UNVERIFIED,
                     {"verdict": "match", "note": "K3 tools inside a thought break out and the thought resumes afterward"}),
         # Muse's channels never nest: the model abandons the analysis channel by
         # writing the tool header directly, without `<|eom|>`. Recovering that
         # boundary is what puts the call between the two thoughts.
         "muse_glimmer": ("<|start|>assistant to=self<|message|>I should check. to=get_weather<|message|><atem:function_calls>\n<atem:invoke name=\"get_weather\">\n<atem:parameter name=\"city\">Paris</atem:parameter>\n</atem:invoke>\n</atem:function_calls><|eom|><|start|>assistant to=self<|message|> now answer<|eom|>",
-                         V_MUSE,
+                         V_UNVERIFIED,
                          {"verdict": "match", "note": "the reasoning body ends at the bare tool header (missing-`<|eom|>` recovery), so the call surfaces between the two thoughts instead of being swallowed"}),
      }),
 
@@ -905,11 +889,11 @@ EDGE = [
                     + k3_tools(k3_call(
                         "log", 1, k3_argument("note", "string", k3_channel("think", "reconsider"))))
                     + r_text("kimi_k3", " done."),
-                    VLLM_UNCAPTURABLE["kimi_k3"],
+                    V_UNVERIFIED,
                     {"verdict": "match", "note": "response channels surround a call whose typed string owns embedded think markers"},
                     k3_channel("think", "reconsider")),
         "muse_glimmer": ("<|start|>assistant to=user<|message|>Logging now: <|eom|><|start|>assistant to=log<|message|><atem:function_calls>\n<atem:invoke name=\"log\">\n<atem:parameter name=\"note\">to=self<|message|>reconsider</atem:parameter>\n</atem:invoke>\n</atem:function_calls><|eom|><|start|>assistant to=user<|message|> done.<|eom|>",
-                         V_MUSE,
+                         V_UNVERIFIED,
                          {"verdict": "match", "note": "both `to=user` messages keep their position and the quoted header stays argument data"},
                          "to=self<|message|>reconsider"),
      }),
@@ -937,10 +921,10 @@ EDGE = [
         "kimi_k3": (r_text("kimi_k3", "Sure. ") + k3_open("think")
                     + "I should check. " + r_tool("kimi_k3", "get_weather", "city", "Paris", 0)
                     + " now answer" + k3_close("think") + r_text("kimi_k3", " Here you go."),
-                    VLLM_UNCAPTURABLE["kimi_k3"],
+                    V_UNVERIFIED,
                     {"verdict": "match", "note": "framed K3 responses remain visible around the nested thought and call"}),
         "muse_glimmer": ("<|start|>assistant to=user<|message|>Sure. <|eom|><|start|>assistant to=self<|message|>I should check. to=get_weather<|message|><atem:function_calls>\n<atem:invoke name=\"get_weather\">\n<atem:parameter name=\"city\">Paris</atem:parameter>\n</atem:invoke>\n</atem:function_calls><|eom|><|start|>assistant to=self<|message|> now answer<|eom|><|start|>assistant to=user<|message|> Here you go.<|eom|>",
-                         V_MUSE,
+                         V_UNVERIFIED,
                          {"verdict": "match", "note": "the bare-header recovery is latched to a reasoning body, so it fires here and stays off inside the surrounding `to=user` messages"}),
      }),
 
@@ -959,10 +943,10 @@ EDGE = [
                     {"verdict": "match", "note": "adjacent reasoning runs coalesce into one event (I8)"}),
         "kimi_k3": (k3_channel("think", "first") + k3_channel("think", "\nsecond")
                     + r_text("kimi_k3", "done"),
-                    VLLM_UNCAPTURABLE["kimi_k3"],
+                    V_UNVERIFIED,
                     {"verdict": "match", "note": "adjacent K3 think channels coalesce with the authored separator"}),
         "muse_glimmer": ("<|start|>assistant to=self<|message|>first<|eom|><|start|>assistant to=self<|message|>second<|eom|><|start|>assistant to=user<|message|>done<|eom|>",
-                         V_MUSE,
+                         V_UNVERIFIED,
                          {"verdict": "match", "note": "the newline is emitted between two ADJACENT `to=self` messages only, matching v1 and both engines' batch parsers"}),
      }),
 
@@ -1187,13 +1171,13 @@ EDGE = [
         # The prompt consumed `<|start|>assistant to=self<|message|>`, so the stream opens
         # INSIDE the thought and its first `<|eom|>` closes it.
         "muse_glimmer": ("checking weather<|eom|><|start|>assistant to=get_weather<|message|><atem:function_calls>\n<atem:invoke name=\"get_weather\">\n<atem:parameter name=\"city\">Paris</atem:parameter>\n</atem:invoke>\n</atem:function_calls><|eom|>",
-                         V_MUSE,
+                         V_UNVERIFIED,
                          {"verdict": "match", "note": "starting_state=Reasoning opens the scanner in the to=self channel"}),
         "gemma4": ("checking weather<channel|><|tool_call>call:get_weather{city:<|\"|>Paris<|\"|>}<tool_call|>", M, M),
         "kimi_k2": ("checking weather</think><|tool_calls_section_begin|><|tool_call_begin|>functions.get_weather:0<|tool_call_argument_begin|>{\"city\": \"Paris\"}<|tool_call_end|><|tool_calls_section_end|>", M, M),
         "kimi_k3": ("checking weather" + k3_close("think")
                     + r_tool("kimi_k3", "get_weather", "city", "Paris", 0),
-                    VLLM_UNCAPTURABLE["kimi_k3"], M),
+                    V_UNVERIFIED, M),
      }),
 
     ("prefilled_reasoning_then_text_then_tool",
@@ -1209,14 +1193,14 @@ EDGE = [
                   D("UNSUPPORTED", "vLLM base case doesn't set a starting channel state; conformance captures default generation only"),
                   {"verdict": "match", "note": "reasoning -> text -> call, all three ordered in one prefilled stream"}),
         "muse_glimmer": ("weighing options<|eom|><|start|>assistant to=user<|message|>Here's what I found: <|eom|><|start|>assistant to=get_weather<|message|><atem:function_calls>\n<atem:invoke name=\"get_weather\">\n<atem:parameter name=\"city\">Paris</atem:parameter>\n</atem:invoke>\n</atem:function_calls><|eom|>",
-                         V_MUSE,
+                         V_UNVERIFIED,
                          {"verdict": "match", "note": "all three channels ordered out of one prefilled stream"}),
         "gemma4": ("weighing options<channel|>Here's what I found: <|tool_call>call:get_weather{city:<|\"|>Paris<|\"|>}<tool_call|>", M, M),
         "kimi_k2": ("weighing options</think>Here's what I found: <|tool_calls_section_begin|><|tool_call_begin|>functions.get_weather:0<|tool_call_argument_begin|>{\"city\": \"Paris\"}<|tool_call_end|><|tool_calls_section_end|>", M, M),
         "kimi_k3": ("weighing options" + k3_close("think")
                     + r_text("kimi_k3", "Here's what I found: ")
                     + r_tool("kimi_k3", "get_weather", "city", "Paris", 0),
-                    VLLM_UNCAPTURABLE["kimi_k3"], M),
+                    V_UNVERIFIED, M),
      }),
 
     ("prefilled_reasoning_then_text",
@@ -1231,13 +1215,13 @@ EDGE = [
                   D("UNSUPPORTED", "vLLM base case doesn't set a starting channel state; conformance captures default generation only"),
                   {"verdict": "match", "note": "closing a prefilled thought returns to visible content"}),
         "muse_glimmer": ("no tool needed<|eom|><|start|>assistant to=user<|message|>The answer is 42.<|eot|>",
-                         V_MUSE,
+                         V_UNVERIFIED,
                          {"verdict": "match", "note": "closing a prefilled thought returns the stream to visible content"}),
         "gemma4": ("no tool needed<channel|>The answer is 42.", M, M),
         "kimi_k2": ("no tool needed</think>The answer is 42.", M, M),
         "kimi_k3": ("no tool needed" + k3_close("think")
                     + r_text("kimi_k3", "The answer is 42."),
-                    VLLM_UNCAPTURABLE["kimi_k3"], M),
+                    V_UNVERIFIED, M),
      }),
 
     ("prefilled_reasoning_with_guided_json",
@@ -1263,13 +1247,13 @@ EDGE = [
         # Muse's opener is the routed header itself. Re-emitting it cuts a ZERO-length
         # body, which must neither emit an event nor arm the adjacency newline.
         "muse_glimmer": ("<|start|>assistant to=self<|message|>checking weather<|eom|><|start|>assistant to=get_weather<|message|><atem:function_calls>\n<atem:invoke name=\"get_weather\">\n<atem:parameter name=\"city\">London</atem:parameter>\n</atem:invoke>\n</atem:function_calls><|eom|>",
-                         V_MUSE,
+                         V_UNVERIFIED,
                          {"verdict": "match", "note": "the echoed header is consumed, not leaked, and adds no separator"}),
         "qwen3": ("<think>checking weather</think><tool_call>\n<function=get_weather>\n<parameter=city>\nLondon\n</parameter>\n</function>\n</tool_call>", M, M),
         "kimi_k2": ("<think>checking weather</think><|tool_calls_section_begin|><|tool_call_begin|>functions.get_weather:0<|tool_call_argument_begin|>{\"city\": \"London\"}<|tool_call_end|><|tool_calls_section_end|>", M, M),
         "kimi_k3": (r_reason("kimi_k3", "checking weather")
                     + r_tool("kimi_k3", "get_weather", "city", "London", 0),
-                    VLLM_UNCAPTURABLE["kimi_k3"], M),
+                    V_UNVERIFIED, M),
      }),
 
 
@@ -1286,7 +1270,7 @@ EDGE = [
                    D("ERROR", "native Gemma4UnifiedParser finish() returns a hard Err on a partial call rather than recovering"),
                    {"verdict": "match", "note": "P2: drop the partial trailing call, keep the prefilled reasoning"}),
         "muse_glimmer": ("analyzing data<|eom|><|start|>assistant to=get_weather<|message|><atem:function_calls>\n<atem:invoke name=\"get_weather\">\n<atem:parameter name=\"city\">Par",
-                         V_MUSE,
+                         V_UNVERIFIED,
                          {"verdict": "match", "note": "P2: the unterminated invoke is dropped, the prefilled thought survives"}),
         "qwen3": ("analyzing data</think><tool_call>\n<function=get_weather>\n<parameter=city>\nPar",
                   {"verdict": "match", "note": "P2: drop the unterminated call and keep prefilled output"},
@@ -1299,7 +1283,7 @@ EDGE = [
                             "argument", [("key", "city"), ("type", "string")]
                         ) + "Par", close=False),
                         close=False),
-                    VLLM_UNCAPTURABLE["kimi_k3"],
+                    V_UNVERIFIED,
                     {"verdict": "match", "note": "P2: drop the partial call and keep prefilled K3 reasoning"}),
      }),
 
@@ -1323,7 +1307,7 @@ EDGE = [
         # them from the text on the way out: they never reach the client, markers and all.
         # The recipient word survives because it is ordinary characters, not a marker.
         "muse_glimmer": ("to=self<|message|>literal<|eom|> then a call<|eom|><|start|>assistant to=get_weather<|message|><atem:function_calls>\n<atem:invoke name=\"get_weather\">\n<atem:parameter name=\"city\">Paris</atem:parameter>\n</atem:invoke>\n</atem:function_calls><|eom|>",
-                         V_MUSE,
+                         V_UNVERIFIED,
                          {"verdict": "match", "note": "the header is not honoured as routing (Response clears the latch), and I3 strips the markers themselves from the text"},
                          "to=selfliteral then a call"),
         "qwen3": ("<think>literal</think> then a call<tool_call>\n<function=get_weather>\n<parameter=city>\nParis\n</parameter>\n</function>\n</tool_call>",
@@ -1340,7 +1324,7 @@ EDGE = [
                     "<think>literal</think> then a call"),
         "kimi_k3": (k3_channel("think", "literal") + " then a call"
                     + r_tool("kimi_k3", "get_weather", "city", "Paris", 0),
-                    VLLM_UNCAPTURABLE["kimi_k3"], M,
+                    V_UNVERIFIED, M,
                     k3_channel("think", "literal") + " then a call"),
      }),
 
@@ -1381,7 +1365,7 @@ EDGE += [
                  k3_argument("tags", "array", '["a", "b"]'),
                  k3_argument("note", "null", "null"),
              ]))),
-             VLLM_UNCAPTURABLE["kimi_k3"], M,
+             V_UNVERIFIED, M,
          ),
      })),
 
@@ -1396,7 +1380,7 @@ EDGE += [
      OnlyFamilies({
          "kimi_k3": (
              k3_raw_tool("run", '{"cmd":"literal <|close|>call<|sep|>","options":{"retries":2}}'),
-             VLLM_UNCAPTURABLE["kimi_k3"], M,
+             V_UNVERIFIED, M,
          ),
      })),
 
@@ -1413,7 +1397,7 @@ EDGE += [
                  "get_weather", 1, k3_argument("city", "string", "Paris", spaced=True),
                  spaced=True), spaced=True)
              + k3_close("message", spaced=True) + "<|end_of_msg|>",
-             VLLM_UNCAPTURABLE["kimi_k3"], M,
+             V_UNVERIFIED, M,
          ),
      })),
 
@@ -1425,7 +1409,7 @@ EDGE += [
      OnlyFamilies({
          "kimi_k3": (
              k3_channel("response", "done") + k3_close("message") + "<|end_of_msg|>",
-             VLLM_UNCAPTURABLE["kimi_k3"], M,
+             V_UNVERIFIED, M,
          ),
      })),
 
@@ -1438,7 +1422,7 @@ EDGE += [
      OnlyFamilies({
          "kimi_k3": (
              k3_open("think") + "checking" + k3_channel("response", "The answer is 42."),
-             VLLM_UNCAPTURABLE["kimi_k3"], M,
+             V_UNVERIFIED, M,
          ),
      })),
 
@@ -1453,7 +1437,7 @@ EDGE += [
              + k3_open("call", [("tool", "bad"), ("index", "1")]) + "not-an-argument"
              + k3_call("g", 2, k3_argument("y", "string", "2"))
              + k3_close("tools"),
-             VLLM_UNCAPTURABLE["kimi_k3"], M,
+             V_UNVERIFIED, M,
          ),
      })),
 
@@ -1466,7 +1450,7 @@ EDGE += [
          "kimi_k3": (
              k3_open("tools") + k3_open("call", [("tool", "run"), ("index", "1")])
              + k3_open("json", [("type", "object")]) + '{"cmd":"unfinished',
-             VLLM_UNCAPTURABLE["kimi_k3"], M,
+             V_UNVERIFIED, M,
          ),
      })),
 
@@ -2046,7 +2030,7 @@ def build_cases(fam):
             "policy": policy,
             "input": inp,
             "golden": golden_of(segs),
-            "expect": ({"vllm": VLLM_UNCAPTURABLE[fam], "dynamo": M} if fam == "deepseek_v41"
+            "expect": ({"vllm": V_UNVERIFIED, "dynamo": M} if fam == "deepseek_v41"
                        else {"vllm": _vllm_entry(vllm, fam), "dynamo": _entry(dynamo, fam)}),
             "init": {"starting_state": state, "tool_output_mode": "Native", "named_tool": None},
             "finish_reason": "stop",

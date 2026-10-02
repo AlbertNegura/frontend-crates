@@ -25,7 +25,7 @@ def capture_input(record: dict) -> dict:
     }
 
 
-def capture_peer_results(cases: list[dict], families, capture, *, tools, supports_finish=False) -> dict:
+def capture_peer_results(cases: list[dict], families, capture, *, tools, supports_finish=False, supports_tools=False) -> dict:
     """Bind only native/default peer executions; unsupported requests never run."""
     ready, results, bindings = [], {}, {}
     for case in cases:
@@ -37,12 +37,12 @@ def capture_peer_results(cases: list[dict], families, capture, *, tools, support
         chunks = case.get("chunks") or []
         if not isinstance(chunks, list) or any(not isinstance(chunk, str) for chunk in chunks):
             raise ValueError(f"peer capture needs literal string chunks: {key}")
-        actual = capture_input({"input": case["input"], "tools": tools, "chunks": [{"delta_text": chunk} for chunk in chunks]})
+        actual = capture_input({"input": case["input"], "tools": case.get("tools", tools) if supports_tools else tools, "chunks": [{"delta_text": chunk} for chunk in chunks]})
         terminal_step = bool(chunks and chunks[-1] == "‹finish›" and "".join(chunks[:-1]) == case["input"])
         requested = capture_input({**case, "chunks": actual["chunks"]})
         bindings[key] = actual
         unsupported = [field for field in ("init", "finish_reason") if requested[field] != actual[field]]
-        if "tools" in case and case["tools"] != tools:
+        if not supports_tools and "tools" in case and case["tools"] != tools:
             unsupported.append("tools")
         if unsupported:
             results[key] = {"unavailable": "Peer harness supports only native/default initialization and stop termination; unsupported request: " + ", ".join(unsupported)}

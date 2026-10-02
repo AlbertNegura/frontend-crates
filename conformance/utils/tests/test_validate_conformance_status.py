@@ -127,6 +127,8 @@ def _html(model):
 
 def test_accepts_snapshot_inventory(inventory_report):
     fixtures, model = inventory_report
+    (fixtures / "vllm_rust-0.25.1").mkdir()
+    (fixtures / "vllm_python-0.25.1").mkdir()
     assert _load_validator().validate_unified_inventory(model, fixtures) == []
 
 
@@ -254,7 +256,7 @@ def test_renderer_validates_before_publishing(inventory_report, tmp_path, failur
     status.write_text("previous status")
     result = subprocess.run(
         ["bash", str(wrapper), "--output", str(out)], capture_output=True, text=True,
-        env={"PATH": os.environ["PATH"]},
+        env={"PATH": os.environ["PATH"], "PYTHONPATH": str(utils / "src")},
     )
     if failure:
         assert result.returncode == (7 if failure == "generator" else 2), result.stderr

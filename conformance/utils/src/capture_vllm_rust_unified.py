@@ -9,16 +9,16 @@ capture_vllm_rust.py — this builds a small temporary Rust binary that depends 
 `vllm-parser` + `vllm-tokenizer` crates from a checked-out vLLM source tree and feeds
 the cases through the right unified parser per family:
 
-  * gemma4 -> Gemma4UnifiedParser (native unified: one ordered pass)
-  * qwen3/kimi_k2 -> CombinedParser(reasoning, tool)
+  * gemma4/kimi_k3 -> native UnifiedParser
+  * qwen3/kimi_k2/deepseek_v4/deepseek_v41/glm47 -> CombinedParser(reasoning, tool)
 
 Both emit ordered `UnifiedParserEvent { Text | Reasoning | ToolCall }`, which is exactly
 the golden event schema. Output JSON: {"vllm_rust_version", "results": {id: {assembled,
 chunks, parser}}}. Runs on the HOST (needs cargo + the vLLM rust source).
 
 Usage:
-  python3 capture_vllm_rust_unified.py --vllm-rust-source /path/to/vllm-0.25.1/rust \
-      --job job.json --out conformance/unified/vllm_rust_capture.json
+  python3 capture_vllm_rust_unified.py --vllm-rust-source /path/to/vllm-0.30.0/rust \
+      --job job.json --out conformance/unified/vllm_rust_capture.yaml
 """
 from __future__ import annotations
 
@@ -35,11 +35,15 @@ from pathlib import Path
 from capture_stimulus import capture_peer_results
 from unified_tools import SCHEMA_PATH
 
-# Family parser wiring for the released 0.25.1 capture.
+# Family parser wiring for the released 0.30.0 capture.
 FAMILY_PARSERS = {
     "gemma4": ("unified", None, None),
+    "kimi_k3": ("unified", None, None),
+    "deepseek_v4": ("combined", "DeepSeekV4ReasoningParser", "DeepSeekV4ToolParser"),
+    "deepseek_v41": ("combined", "DeepSeekV41ReasoningParser", "DeepSeekV41ToolParser"),
+    "glm47": ("combined", "Glm47ReasoningParser", "Glm47MoeToolParser"),
     "qwen3": ("combined", "Qwen3ReasoningParser", "Qwen3CoderToolParser"),
-    "kimi_k2": ("combined", "KimiReasoningParser", "KimiK2ToolParser"),
+    "kimi_k2": ("combined", "KimiK2ReasoningParser", "KimiK2ToolParser"),
 }
 
 RUST_MAIN = r'''
@@ -49,13 +53,19 @@ use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use vllm_parser::reasoning::{Qwen3ReasoningParser, ReasoningParser};
-use vllm_parser::tool::{KimiK2ToolParser, Qwen3CoderToolParser, Tool, ToolParser};
+use vllm_parser::reasoning::{
+    DeepSeekV4ReasoningParser, DeepSeekV41ReasoningParser, Glm47ReasoningParser,
+    KimiK2ReasoningParser, Qwen3ReasoningParser, ReasoningParser,
+};
+use vllm_parser::tool::{
+    DeepSeekV4ToolParser, DeepSeekV41ToolParser, Glm47MoeToolParser,
+    KimiK2ToolParser, Qwen3CoderToolParser, Tool, ToolParser,
+};
 use vllm_parser::unified::{
-    CombinedParser, Gemma4UnifiedParser, UnifiedParser, UnifiedParserEvent, UnifiedParserOutput,
+    CombinedParser, Gemma4UnifiedParser, KimiK3UnifiedParser, UnifiedParser, UnifiedParserEvent, UnifiedParserOutput,
 };
 use vllm_tokenizer::test_utils::TestTokenizer;
-use vllm_tokenizer::DynTokenizer;
+use vllm_tokenizer::{DecodedText, DynTokenizer};
 
 #[derive(Deserialize)]
 struct Job {
@@ -70,6 +80,8 @@ struct Case {
     chunks: Vec<String>,
     #[serde(default)]
     terminal_step: bool,
+    #[serde(default = "tools")]
+    tools: Vec<Tool>,
 }
 
 #[derive(Serialize)]
@@ -86,7 +98,7 @@ fn tools() -> Vec<Tool> {
         .expect("Unified corpus tool schemas")
 }
 
-fn make_parser(family: &str) -> (Box<dyn UnifiedParser>, String) {
+fn make_parser(family: &str, tools: &[Tool]) -> (Box<dyn UnifiedParser>, String) {
     match family {
         "gemma4" => {
             let tok: DynTokenizer = Arc::new(
@@ -95,7 +107,7 @@ fn make_parser(family: &str) -> (Box<dyn UnifiedParser>, String) {
                     .with_special_token("<channel|>", 257),
             );
             (
-                Gemma4UnifiedParser::create(&tools(), tok).expect("gemma4 unified create"),
+                Gemma4UnifiedParser::create(tools, tok).expect("gemma4 unified create"),
                 "vLLM Rust (UnifiedParser)".to_string(),
             )
         }
@@ -106,7 +118,7 @@ fn make_parser(family: &str) -> (Box<dyn UnifiedParser>, String) {
                     .with_regular_token("</think>", 257),
             );
             let reasoning = Qwen3ReasoningParser::create(tok).expect("qwen3 reasoning");
-            let tool = Qwen3CoderToolParser::create(&tools()).expect("qwen3 tool");
+            let tool = Qwen3CoderToolParser::create(tools).expect("qwen3 tool");
             (
                 Box::new(CombinedParser::new(Some(reasoning), Some(tool))),
                 "vLLM Rust (CombinedParser)".to_string(),
@@ -118,8 +130,44 @@ fn make_parser(family: &str) -> (Box<dyn UnifiedParser>, String) {
                     .with_special_token("<think>", 256)
                     .with_special_token("</think>", 257),
             );
-            let reasoning = Qwen3ReasoningParser::create(tok).expect("kimi reasoning");
-            let tool = KimiK2ToolParser::create(&tools()).expect("kimi tool");
+            let reasoning = KimiK2ReasoningParser::create(tok).expect("kimi reasoning");
+            let tool = KimiK2ToolParser::create(tools).expect("kimi tool");
+            (
+                Box::new(CombinedParser::new(Some(reasoning), Some(tool))),
+                "vLLM Rust (CombinedParser)".to_string(),
+            )
+        }
+        "kimi_k3" => {
+            let tok: DynTokenizer = Arc::new(
+                TestTokenizer::new()
+                    .with_special_token("<|open|>", 256)
+                    .with_special_token("<|sep|>", 257),
+            );
+            (
+                KimiK3UnifiedParser::create(tools, tok).expect("kimi k3 unified create"),
+                "vLLM Rust (UnifiedParser)".to_string(),
+            )
+        }
+        "deepseek_v4" | "deepseek_v41" | "glm47" => {
+            let tok: DynTokenizer = Arc::new(
+                TestTokenizer::new()
+                    .with_special_token("<think>", 256)
+                    .with_special_token("</think>", 257),
+            );
+            let (reasoning, tool) = match family {
+                "deepseek_v4" => (
+                    DeepSeekV4ReasoningParser::create(tok).expect("deepseek v4 reasoning"),
+                    DeepSeekV4ToolParser::create(tools).expect("deepseek v4 tool"),
+                ),
+                "deepseek_v41" => (
+                    DeepSeekV41ReasoningParser::create(tok).expect("deepseek v41 reasoning"),
+                    DeepSeekV41ToolParser::create(tools).expect("deepseek v41 tool"),
+                ),
+                _ => (
+                    Glm47ReasoningParser::create(tok).expect("glm47 reasoning"),
+                    Glm47MoeToolParser::create(tools).expect("glm47 tool"),
+                ),
+            };
             (
                 Box::new(CombinedParser::new(Some(reasoning), Some(tool))),
                 "vLLM Rust (CombinedParser)".to_string(),
@@ -138,7 +186,7 @@ fn events_to_json(events: &[UnifiedParserEvent]) -> Vec<Value> {
     let mut raw_args: BTreeMap<usize, String> = BTreeMap::new();
     for ev in events {
         match ev {
-            UnifiedParserEvent::Reasoning(t) => out.push(json!({"kind":"reasoning","text":t})),
+            UnifiedParserEvent::Reasoning(t) => out.push(json!({"kind":"reasoning","text":t.text})),
             UnifiedParserEvent::Text(t) => out.push(json!({"kind":"text","text":t})),
             UnifiedParserEvent::ToolCall(d) => {
                 slots.entry(d.tool_index).or_insert_with(|| {
@@ -170,7 +218,7 @@ fn deltas_to_json(events: &[UnifiedParserEvent]) -> Vec<Value> {
     events
         .iter()
         .map(|ev| match ev {
-            UnifiedParserEvent::Reasoning(t) => json!({"kind":"reasoning","text":t}),
+            UnifiedParserEvent::Reasoning(t) => json!({"kind":"reasoning","text":t.text}),
             UnifiedParserEvent::Text(t) => json!({"kind":"text","text":t}),
             UnifiedParserEvent::ToolCall(d) => {
                 json!({"kind":"tool_call","name":d.name,"arguments":d.arguments})
@@ -186,12 +234,12 @@ fn main() {
     let mut results: BTreeMap<String, CaseOut> = BTreeMap::new();
 
     for case in &job.cases {
-        let (mut p, parser) = make_parser(&case.family);
+        let (mut p, parser) = make_parser(&case.family, &case.tools);
         let mut error: Option<String> = None;
 
         // Batch: whole input -> assembled events.
         let mut out = UnifiedParserOutput::default();
-        if let Err(e) = p.parse_into(&case.input, &mut out) {
+        if let Err(e) = p.parse_into(DecodedText::unattributed(case.input.clone()), &mut out) {
             error = Some(format!("UnifiedParserError::{e:?}"));
         }
         match p.finish() {
@@ -203,11 +251,11 @@ fn main() {
         let assembled = events_to_json(&out.events);
 
         // Streaming: fresh parser, per-chunk deltas.
-        let (mut ps, _) = make_parser(&case.family);
+        let (mut ps, _) = make_parser(&case.family, &case.tools);
         let mut chunk_rows: Vec<Vec<Value>> = Vec::new();
         for (i, ch) in case.chunks.iter().enumerate() {
             let mut co = UnifiedParserOutput::default();
-            if let Err(e) = ps.parse_into(ch, &mut co) {
+            if let Err(e) = ps.parse_into(DecodedText::unattributed(ch.clone()), &mut co) {
                 error.get_or_insert_with(|| format!("UnifiedParserError::{e:?}"));
             }
             if !case.terminal_step && i == case.chunks.len() - 1 {
@@ -236,7 +284,7 @@ fn main() {
         );
     }
 
-    let feed = json!({"vllm_rust_version": "0.25.1", "results": results});
+    let feed = json!({"vllm_rust_version": "__VLLM_VERSION__", "results": results});
     println!("{}", serde_json::to_string(&feed).unwrap());
 }
 '''
@@ -295,7 +343,7 @@ serde_json = "1"
 [workspace]
 ''')
         (crate / "src/main.rs").write_text(
-            RUST_MAIN.replace('"vllm_rust_version": "0.25.1"',
+            RUST_MAIN.replace('"vllm_rust_version": "__VLLM_VERSION__"',
                               f'"vllm_rust_version": {json.dumps(version)}')
         )
         build = subprocess.run(
@@ -320,7 +368,7 @@ def capture_job(vllm_rust_source, job):
         return feed["results"]
 
     results = capture_peer_results(job.get("cases", []), FAMILY_PARSERS, capture,
-                                   tools=json.loads(schema_bytes), supports_finish=True)
+                                   tools=json.loads(schema_bytes), supports_finish=True, supports_tools=True)
     if SCHEMA_PATH.read_bytes() != schema_bytes:
         raise ValueError("tool schema changed during peer capture")
     if not feed:

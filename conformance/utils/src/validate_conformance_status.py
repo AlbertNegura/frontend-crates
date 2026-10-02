@@ -25,6 +25,7 @@ from pathlib import Path
 import yaml
 
 from case_variants import leaf_cells
+from fixtures import _version_sort_key
 
 
 MODEL_RE = re.compile(
@@ -140,6 +141,12 @@ def validate_unified_inventory(model: dict, fixtures: Path) -> list[str]:
             required.add((source, version))
     if not required:
         raise ValueError(f"no Unified captures found under {fixtures}")
+    for source in ("vllm_python", "vllm_rust"):
+        versions = [identity for identity in required if identity[0] == source]
+        if versions:
+            latest = max(versions, key=lambda identity: _version_sort_key(identity[1]))
+            required.difference_update(versions)
+            required.add(latest)
     missing = required - identities.keys()
     if missing:
         raise ValueError(f"Unified missing recorded version columns: {sorted(missing)}")
