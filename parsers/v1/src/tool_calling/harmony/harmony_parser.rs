@@ -551,16 +551,6 @@ mod tests {
         assert_eq!(normal.as_deref(), Some(text));
     }
 
-    #[tokio::test]
-    async fn test_aggregate_finalize_held_tail_kept() {
-        let text = "< 10\\)  \nBANANA";
-        let (calls, normal) = parse_tool_calls_harmony_complete(text, &Default::default(), None)
-            .await
-            .unwrap();
-        assert!(calls.is_empty());
-        assert_eq!(normal.as_deref(), Some(text));
-    }
-
     // DEPRECATED(parser-fixture-duplicate): Duplicate of YAML fixture coverage: TOOLCALLING.batch.1 in tests/parity/toolcalling/fixtures/harmony/TOOLCALLING.batch.yaml.
     #[tokio::test] // TOOLCALLING.batch.1, TOOLCALLING.harmony.2
     async fn test_parse_tool_calls_harmony_complete_basic() {

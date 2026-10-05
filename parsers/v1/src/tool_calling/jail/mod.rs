@@ -696,6 +696,8 @@ impl ChoiceJailState {
         }
 
         if let Some((prefix, partial)) = jail_stream.split_partial_tool_call_start(content) {
+            let (prefix_lp, suffix_lp) =
+                split_logprobs_at_chars(&choice.logprobs, prefix.chars().count());
             if !prefix.is_empty() {
                 #[allow(deprecated)]
                 let trailing_choice = create_choice_stream(
@@ -704,11 +706,12 @@ impl ChoiceJailState {
                     prefix,
                     None,
                     None,
-                    choice.logprobs.clone(),
+                    prefix_lp,
                 );
                 emissions.push(ChoiceEmission::Trailing(trailing_choice));
             }
             self.partial_match_buffer = partial.to_string();
+            self.partial_logprobs_buffer = suffix_lp;
         } else if jail_stream.should_start_jail(content) {
             self.begin_jail(content.to_string(), None);
         } else {
