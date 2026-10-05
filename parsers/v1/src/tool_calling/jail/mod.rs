@@ -521,6 +521,27 @@ impl ChoiceJailState {
         }
     }
 
+    /// Append a chunk's logprob entries to the pending pool. Every arm
+    /// below draws from this pool, so entries stay in text order whether
+    /// the chunk is emitted, held, or jailed.
+    fn feed_entries(&mut self, current: Option<ChatChoiceLogprobs>) {
+        let merged = merge_held_logprobs(&mut self.partial_logprobs_buffer, current);
+        self.partial_logprobs_buffer = merged;
+    }
+
+    /// Consume pending logprob entries for `chars` characters of emitted
+    /// text, leaving the remainder held for the text still buffered. A
+    /// token straddling the boundary stays with the emission. Callers feed
+    /// every chunk's entries into the buffer at entry, so emissions,
+    /// holds, and jail starts all draw from the same in-order pool and
+    /// content never goes out with entries belonging to other text.
+    fn consume_pending_entries(&mut self, chars: usize) -> Option<ChatChoiceLogprobs> {
+        let available = self.partial_logprobs_buffer.take()?;
+        let (front, rest) = split_logprobs_at_chars(&Some(available), chars);
+        self.partial_logprobs_buffer = rest;
+        front
+    }
+
     fn begin_jail(&mut self, content: String, logprobs: Option<ChatChoiceLogprobs>) {
         self.is_jailed = true;
         self.accumulated_content = content;
@@ -676,10 +697,9 @@ impl ChoiceJailState {
         }
 
         // Combine a pending hold with this chunk, mirroring process_content:
-        // the matcher resolves it, the split re-measures against the combined
-        // text, and the held entries merge into the emission, so a second
-        // consecutive short-suffix chunk cannot discard the first hold's
-        // text or logprobs.
+        // the matcher resolves it and the split re-measures against the
+        // combined text, so a second consecutive short-suffix chunk cannot
+        // discard the first hold's text.
         let held_text;
         let content = if self.partial_match_buffer.is_empty() {
             content
@@ -692,11 +712,14 @@ impl ChoiceJailState {
             &held_text
         };
 
+        self.feed_entries(choice.logprobs.clone());
+
         if let MatchResult::Partial {
             prefix, partial, ..
         } = jail_stream.marker_matcher.process_chunk(content, "")
         {
             if !prefix.is_empty() {
+                let prefix_lp = self.consume_pending_entries(prefix.chars().count());
                 #[allow(deprecated)]
                 let trailing_choice = create_choice_stream(
                     choice.index,
@@ -704,7 +727,7 @@ impl ChoiceJailState {
                     &prefix,
                     None,
                     None,
-                    choice.logprobs.clone(),
+                    prefix_lp,
                 );
                 emissions.push(ChoiceEmission::Trailing(trailing_choice));
             }
@@ -713,11 +736,8 @@ impl ChoiceJailState {
         }
 
         if let Some((prefix, partial)) = jail_stream.split_partial_tool_call_start(content) {
-            let combined_lp =
-                merge_held_logprobs(&mut self.partial_logprobs_buffer, choice.logprobs.clone());
-            let (prefix_lp, suffix_lp) =
-                split_logprobs_at_chars(&combined_lp, prefix.chars().count());
             if !prefix.is_empty() {
+                let prefix_lp = self.consume_pending_entries(prefix.chars().count());
                 #[allow(deprecated)]
                 let trailing_choice = create_choice_stream(
                     choice.index,
@@ -730,13 +750,11 @@ impl ChoiceJailState {
                 emissions.push(ChoiceEmission::Trailing(trailing_choice));
             }
             self.partial_match_buffer = partial.to_string();
-            self.partial_logprobs_buffer = suffix_lp;
         } else if jail_stream.should_start_jail(content) {
-            self.begin_jail(content.to_string(), None);
-            self.partial_logprobs_buffer = None;
+            let remaining = self.partial_logprobs_buffer.take();
+            self.begin_jail(content.to_string(), remaining);
         } else {
-            let merged =
-                merge_held_logprobs(&mut self.partial_logprobs_buffer, choice.logprobs.clone());
+            let all = self.partial_logprobs_buffer.take();
             #[allow(deprecated)]
             let trailing_choice = create_choice_stream(
                 choice.index,
@@ -744,7 +762,7 @@ impl ChoiceJailState {
                 content,
                 None,
                 choice.finish_reason,
-                merged,
+                all,
             );
             emissions.push(ChoiceEmission::Trailing(trailing_choice));
         }
@@ -939,6 +957,8 @@ impl ChoiceJailState {
     ) -> Vec<ChoiceEmission> {
         let mut emissions = Vec::new();
         if !self.is_jailed {
+            self.feed_entries(choice.logprobs.clone());
+
             // Use the marker matcher to detect complete/partial markers
             let match_result = jail_stream
                 .marker_matcher
@@ -957,6 +977,7 @@ impl ChoiceJailState {
 
                     // Emit prefix if any
                     if !prefix.is_empty() && !prefix_has_harmony_protocol {
+                        let prefix_lp = self.consume_pending_entries(prefix.chars().count());
                         #[allow(deprecated)]
                         let prefix_choice = create_choice_stream(
                             choice.index,
@@ -964,7 +985,7 @@ impl ChoiceJailState {
                             &prefix,
                             None,
                             choice.finish_reason,
-                            choice.logprobs.clone(),
+                            prefix_lp,
                         );
                         emissions.push(ChoiceEmission::PassThrough(prefix_choice));
                     }
@@ -976,11 +997,8 @@ impl ChoiceJailState {
                         format!("{}{}", marker, suffix)
                     };
 
-                    let merged = merge_held_logprobs(
-                        &mut self.partial_logprobs_buffer,
-                        choice.logprobs.clone(),
-                    );
-                    self.begin_jail(full_content, merged);
+                    let remaining = self.partial_logprobs_buffer.take();
+                    self.begin_jail(full_content, remaining);
                     let completion = jail_stream
                         .check_jail_completion(
                             &self.accumulated_content,
@@ -1003,13 +1021,15 @@ impl ChoiceJailState {
                     if is_harmony_parser(jail_stream.tool_call_parser.as_deref())
                         && contains_harmony_protocol(&prefix)
                     {
-                        self.begin_jail(format!("{}{}", prefix, partial), choice.logprobs.clone());
+                        let remaining = self.partial_logprobs_buffer.take();
+                        self.begin_jail(format!("{}{}", prefix, partial), remaining);
                         self.partial_match_buffer.clear();
                         return emissions;
                     }
 
                     // Emit the safe prefix
                     if !prefix.is_empty() {
+                        let prefix_lp = self.consume_pending_entries(prefix.chars().count());
                         #[allow(deprecated)]
                         let prefix_choice = create_choice_stream(
                             choice.index,
@@ -1017,7 +1037,7 @@ impl ChoiceJailState {
                             &prefix,
                             None,
                             choice.finish_reason,
-                            choice.logprobs.clone(),
+                            prefix_lp,
                         );
                         emissions.push(ChoiceEmission::PassThrough(prefix_choice));
                     }
@@ -1037,16 +1057,8 @@ impl ChoiceJailState {
                     if let Some((prefix, partial)) =
                         jail_stream.split_partial_tool_call_start(&content)
                     {
-                        // The matcher accumulated a previous hold into this
-                        // content, so partition held+current logprobs together
-                        // at the combined prefix boundary.
-                        let combined = merge_held_logprobs(
-                            &mut self.partial_logprobs_buffer,
-                            choice.logprobs.clone(),
-                        );
-                        let (prefix_lp, suffix_lp) =
-                            split_logprobs_at_chars(&combined, prefix.chars().count());
                         if !prefix.is_empty() {
+                            let prefix_lp = self.consume_pending_entries(prefix.chars().count());
                             #[allow(deprecated)]
                             let prefix_choice = create_choice_stream(
                                 choice.index,
@@ -1059,17 +1071,14 @@ impl ChoiceJailState {
                             emissions.push(ChoiceEmission::PassThrough(prefix_choice));
                         }
                         self.partial_match_buffer = partial.to_string();
-                        self.partial_logprobs_buffer = suffix_lp;
                     } else if jail_stream.should_start_jail(&content) {
-                        self.begin_jail(content, choice.logprobs.clone());
+                        let remaining = self.partial_logprobs_buffer.take();
+                        self.begin_jail(content, remaining);
                         self.partial_match_buffer.clear();
                     } else {
                         // No markers - emit everything
                         if !content.is_empty() {
-                            let merged = merge_held_logprobs(
-                                &mut self.partial_logprobs_buffer,
-                                choice.logprobs.clone(),
-                            );
+                            let all = self.partial_logprobs_buffer.take();
                             #[allow(deprecated)]
                             let pass_through_choice = create_choice_stream(
                                 choice.index,
@@ -1077,7 +1086,7 @@ impl ChoiceJailState {
                                 &content,
                                 None,
                                 choice.finish_reason,
-                                merged,
+                                all,
                             );
                             emissions.push(ChoiceEmission::PassThrough(pass_through_choice));
                         }
