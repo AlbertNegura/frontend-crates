@@ -207,6 +207,10 @@ struct ChoiceJailState {
     accumulated_logprobs: Option<ChatChoiceLogprobs>,
     /// Buffer for partial marker matches across chunks
     partial_match_buffer: String,
+    /// Logprobs for the text held in `partial_match_buffer`, kept so the
+    /// held suffix is emitted with its own tokens' logprobs once the
+    /// matcher resolves the hold.
+    partial_logprobs_buffer: Option<ChatChoiceLogprobs>,
     /// Stream finish reason
     stream_finish_reason: Option<FinishReason>,
     /// Number of tool calls already emitted for this choice
@@ -386,6 +390,61 @@ enum JailCompletion {
     Complete(CompletedJail),
 }
 
+/// Split a chunk's logprobs at a character boundary. Token entries fully
+/// inside the first `prefix_chars` characters stay with the prefix; the
+/// first token that crosses the boundary goes to the suffix so the suffix
+/// never loses an entry that overlaps it.
+fn split_logprobs_at_chars(
+    logprobs: &Option<ChatChoiceLogprobs>,
+    prefix_chars: usize,
+) -> (Option<ChatChoiceLogprobs>, Option<ChatChoiceLogprobs>) {
+    let Some(lp) = logprobs else {
+        return (None, None);
+    };
+    let Some(content) = lp.content.as_ref() else {
+        return (Some(lp.clone()), None);
+    };
+    let mut split_at = content.len();
+    let mut chars = 0usize;
+    for (i, entry) in content.iter().enumerate() {
+        if chars >= prefix_chars {
+            split_at = i;
+            break;
+        }
+        chars += entry.token.chars().count();
+    }
+    let mut prefix = lp.clone();
+    let mut suffix = lp.clone();
+    prefix.content = Some(content[..split_at].to_vec());
+    suffix.content = Some(content[split_at..].to_vec());
+    if suffix.content.as_ref().is_some_and(|c| c.is_empty()) {
+        suffix.content = None;
+    }
+    if prefix.content.as_ref().is_some_and(|c| c.is_empty()) {
+        prefix.content = None;
+    }
+    (Some(prefix), Some(suffix))
+}
+
+/// Prepend any logprobs held for a pending suffix to the current chunk's
+/// logprobs, consuming the held entries.
+fn merge_held_logprobs(
+    held: &mut Option<ChatChoiceLogprobs>,
+    current: Option<ChatChoiceLogprobs>,
+) -> Option<ChatChoiceLogprobs> {
+    let held_taken = held.take();
+    match (held_taken, current) {
+        (None, c) => c,
+        (h, None) => h,
+        (Some(mut h), Some(c)) => {
+            if let (Some(hc), Some(cc)) = (h.content.as_mut(), c.content.as_ref()) {
+                hc.extend(cc.iter().cloned());
+            }
+            Some(h)
+        }
+    }
+}
+
 fn create_choice_stream(
     index: u32,
     role: Option<Role>,
@@ -460,6 +519,7 @@ impl ChoiceJailState {
             accumulated_content: String::new(),
             accumulated_logprobs: None,
             partial_match_buffer: String::new(),
+            partial_logprobs_buffer: None,
             stream_finish_reason: None,
             emitted_tool_calls_count: 0,
             pending_reasoning_content: None,
@@ -898,7 +958,11 @@ impl ChoiceJailState {
                         format!("{}{}", marker, suffix)
                     };
 
-                    self.begin_jail(full_content, choice.logprobs.clone());
+                    let merged = merge_held_logprobs(
+                        &mut self.partial_logprobs_buffer,
+                        choice.logprobs.clone(),
+                    );
+                    self.begin_jail(full_content, merged);
                     let completion = jail_stream
                         .check_jail_completion(
                             &self.accumulated_content,
@@ -955,6 +1019,8 @@ impl ChoiceJailState {
                     if let Some((prefix, partial)) =
                         jail_stream.split_partial_tool_call_start(&content)
                     {
+                        let (prefix_lp, suffix_lp) =
+                            split_logprobs_at_chars(&choice.logprobs, prefix.chars().count());
                         if !prefix.is_empty() {
                             #[allow(deprecated)]
                             let prefix_choice = create_choice_stream(
@@ -963,17 +1029,22 @@ impl ChoiceJailState {
                                 prefix,
                                 None,
                                 None,
-                                choice.logprobs.clone(),
+                                prefix_lp,
                             );
                             emissions.push(ChoiceEmission::PassThrough(prefix_choice));
                         }
                         self.partial_match_buffer = partial.to_string();
+                        self.partial_logprobs_buffer = suffix_lp;
                     } else if jail_stream.should_start_jail(&content) {
                         self.begin_jail(content, choice.logprobs.clone());
                         self.partial_match_buffer.clear();
                     } else {
                         // No markers - emit everything
                         if !content.is_empty() {
+                            let merged = merge_held_logprobs(
+                                &mut self.partial_logprobs_buffer,
+                                choice.logprobs.clone(),
+                            );
                             #[allow(deprecated)]
                             let pass_through_choice = create_choice_stream(
                                 choice.index,
@@ -981,7 +1052,7 @@ impl ChoiceJailState {
                                 &content,
                                 None,
                                 choice.finish_reason,
-                                choice.logprobs.clone(),
+                                merged,
                             );
                             emissions.push(ChoiceEmission::PassThrough(pass_through_choice));
                         }
@@ -3340,18 +3411,44 @@ mod tests {
     fn test_split_partial_tool_call_start_harmony_short_suffix() {
         let jail = JailedStream::builder().tool_call_parser("harmony").build();
 
-        // Prose tails and the head of a text-split marker are both held for
-        // the next chunk; they are never jailed on directly.
         assert_eq!(jail.split_partial_tool_call_start("< "), Some(("", "< ")));
         assert_eq!(jail.split_partial_tool_call_start("<|"), Some(("", "<|")));
         assert_eq!(
             jail.split_partial_tool_call_start("Django >= 4.2, <"),
             Some(("Django >= 4.2, ", "<"))
         );
-        // Content that does not end in a short marker prefix resolves to None.
         assert_eq!(jail.split_partial_tool_call_start("10"), None);
         assert_eq!(jail.split_partial_tool_call_start("<|channel|>comm"), None);
         assert_eq!(jail.split_partial_tool_call_start("a < b"), None);
+    }
+
+    #[test]
+    fn test_split_logprobs_at_chars_partitions_token_entries() {
+        let entry = |token: &str| dynamo_protocols::types::ChatCompletionTokenLogprob {
+            token: token.to_string(),
+            logprob: 0.0,
+            token_id: None,
+            bytes: None,
+            top_logprobs: vec![],
+        };
+        let logprobs = ChatChoiceLogprobs {
+            content: Some(vec![entry("x "), entry("< "), entry("10")]),
+            refusal: None,
+        };
+        // Split before the `<` token: prefix keeps "x ", suffix keeps the rest.
+        let (prefix, suffix) = split_logprobs_at_chars(&Some(logprobs.clone()), 2);
+        let tokens = |lp: &Option<ChatChoiceLogprobs>| {
+            lp.as_ref()
+                .and_then(|l| l.content.clone())
+                .map(|c| c.iter().map(|e| e.token.clone()).collect::<Vec<_>>())
+                .unwrap_or_default()
+        };
+        assert_eq!(tokens(&prefix), vec!["x "]);
+        assert_eq!(tokens(&suffix), vec!["< ", "10"]);
+
+        let (empty, all) = split_logprobs_at_chars(&Some(logprobs), 0);
+        assert_eq!(tokens(&empty), Vec::<String>::new());
+        assert_eq!(tokens(&all).len(), 3);
     }
 
     #[tokio::test]
