@@ -1012,8 +1012,15 @@ impl ChoiceJailState {
                     if let Some((prefix, partial)) =
                         jail_stream.split_partial_tool_call_start(&content)
                     {
+                        // The matcher accumulated a previous hold into this
+                        // content, so partition held+current logprobs together
+                        // at the combined prefix boundary.
+                        let combined = merge_held_logprobs(
+                            &mut self.partial_logprobs_buffer,
+                            choice.logprobs.clone(),
+                        );
                         let (prefix_lp, suffix_lp) =
-                            split_logprobs_at_chars(&choice.logprobs, prefix.chars().count());
+                            split_logprobs_at_chars(&combined, prefix.chars().count());
                         if !prefix.is_empty() {
                             #[allow(deprecated)]
                             let prefix_choice = create_choice_stream(
@@ -1132,7 +1139,7 @@ impl ChoiceJailState {
                 &content,
                 None,
                 self.stream_finish_reason,
-                None,
+                self.partial_logprobs_buffer.take(),
             );
             Some(ChoiceEmission::Content(choice))
         } else {
@@ -3413,6 +3420,37 @@ mod tests {
         assert_eq!(jail.split_partial_tool_call_start("10"), None);
         assert_eq!(jail.split_partial_tool_call_start("<|channel|>comm"), None);
         assert_eq!(jail.split_partial_tool_call_start("a < b"), None);
+    }
+
+    #[test]
+    fn test_merge_held_logprobs_then_resplit_keeps_entries() {
+        let entry = |token: &str| dynamo_protocols::types::ChatCompletionTokenLogprob {
+            token: token.to_string(),
+            logprob: 0.0,
+            token_id: None,
+            bytes: None,
+            top_logprobs: vec![],
+        };
+        let held = ChatChoiceLogprobs {
+            content: Some(vec![entry("< ")]),
+            refusal: None,
+        };
+        let current = ChatChoiceLogprobs {
+            content: Some(vec![entry("x "), entry("< ")]),
+            refusal: None,
+        };
+        let mut held_buf = Some(held);
+        let combined = merge_held_logprobs(&mut held_buf, Some(current));
+        let (prefix, suffix) = split_logprobs_at_chars(&combined, 3);
+        let tokens = |lp: &Option<ChatChoiceLogprobs>| {
+            lp.as_ref()
+                .and_then(|l| l.content.clone())
+                .map(|c| c.iter().map(|e| e.token.clone()).collect::<Vec<_>>())
+                .unwrap_or_default()
+        };
+        assert_eq!(tokens(&prefix), vec!["< ", "x "]);
+        assert_eq!(tokens(&suffix), vec!["< "]);
+        assert!(held_buf.is_none());
     }
 
     #[test]
