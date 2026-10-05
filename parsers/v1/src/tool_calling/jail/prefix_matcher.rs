@@ -564,3 +564,39 @@ mod tests {
         }
     }
 }
+
+#[cfg(test)]
+mod streaming_prose_tests {
+    use super::*;
+
+    #[test]
+    fn test_production_delta_sequence_passes_through() {
+        let patterns = vec![
+            "<|start|>assistant<|channel|>commentary".to_string(),
+            "<|channel|>commentary".to_string(),
+            "<|start|>assistant<|channel|>commentary".to_string(),
+            "<|channel|>commentary".to_string(),
+        ];
+        let matcher = MarkerMatcher::new(patterns).unwrap();
+        let mut partial = String::new();
+        let deltas = [
+            "\\(", "2", " ", "< x", " ", "< ", "10", "\\", ")", "  \n", "BAN", "ANA",
+        ];
+        for d in deltas {
+            let result = matcher.process_chunk(d, &partial);
+            match &result {
+                MatchResult::Complete { .. } => println!("delta {d:?} -> Complete"),
+                MatchResult::Partial {
+                    prefix, partial: p, ..
+                } => {
+                    println!("delta {d:?} -> Partial prefix={prefix:?} partial={p:?}");
+                    partial = p.clone();
+                }
+                MatchResult::None { content } => {
+                    println!("delta {d:?} -> None (emit {content:?})");
+                    partial.clear();
+                }
+            }
+        }
+    }
+}

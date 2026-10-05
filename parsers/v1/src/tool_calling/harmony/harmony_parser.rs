@@ -345,6 +345,13 @@ pub async fn parse_tool_calls_harmony_complete(
     _config: &JsonParserConfig,
     _tools: Option<&[ToolDefinition]>,
 ) -> anyhow::Result<(Vec<ToolCallResponse>, Option<String>)> {
+    // Bare text cannot contain a tool call. The streaming reasoning
+    // parser strips channel markers before this runs, so the aggregator
+    // only ever re-parses plain content here.
+    if !text.contains("<|") {
+        return Ok((vec![], Some(text.to_string())));
+    }
+
     let enc = match get_harmony_encoding().await.as_ref() {
         Ok(e) => e,
         Err(e) => {
@@ -442,6 +449,16 @@ pub async fn parse_tool_calls_harmony_complete(
     Ok((res, Some(normal_text)))
 }
 
+/// Minimum prefix length of a start token that can still indicate a marker
+/// split across streaming chunks. Harmony tool-call markers begin with the
+/// atomic special tokens `<|start|>` / `<|channel|>`, which the detokenizer
+/// emits whole, so a genuinely split marker's shortest ambiguous prefix is
+/// three characters (`<|c`). Content chunks ending in `<` or `<|` are
+/// ordinary prose (comparisons, LaTeX, HTML) and must not be treated as
+/// potential tool-call starts: jailing on them holds the rest of the message
+/// and the stream-end recovery drops it.
+const MIN_SPLIT_MARKER_PREFIX_CHARS: usize = 3;
+
 pub fn detect_tool_call_start_harmony(
     chunk: &str,
     config: &JsonParserConfig,
@@ -479,7 +496,7 @@ pub fn detect_tool_call_start_harmony(
             }
             // Check if the chunk could be a prefix of this start token
             // Handle Unicode character boundaries properly
-            for i in 1..=token.chars().count() {
+            for i in MIN_SPLIT_MARKER_PREFIX_CHARS..=token.chars().count() {
                 if let Some(prefix) = token.chars().take(i).collect::<String>().get(..) {
                     let prefix_str = &prefix[..prefix.len()];
                     if trimmed == prefix_str || trimmed.ends_with(prefix_str) {
@@ -507,7 +524,7 @@ pub fn detect_tool_call_start_harmony(
             }
             // Check if the chunk could be a prefix of this start token
             // Handle Unicode character boundaries properly
-            for i in 1..=token.chars().count() {
+            for i in MIN_SPLIT_MARKER_PREFIX_CHARS..=token.chars().count() {
                 if let Some(prefix) = token.chars().take(i).collect::<String>().get(..) {
                     let prefix_str = &prefix[..prefix.len()];
                     if trimmed == prefix_str || trimmed.ends_with(prefix_str) {
@@ -529,6 +546,26 @@ mod tests {
     fn extract_name_and_args(call: ToolCallResponse) -> (String, serde_json::Value) {
         let args: serde_json::Value = serde_json::from_str(&call.function.arguments).unwrap();
         (call.function.name, args)
+    }
+
+    #[tokio::test]
+    async fn test_aggregate_finalize_bare_prose_kept() {
+        let text = "\\(2 < x < 10\\)  \nBANANA";
+        let (calls, normal) = parse_tool_calls_harmony_complete(text, &Default::default(), None)
+            .await
+            .unwrap();
+        assert!(calls.is_empty());
+        assert_eq!(normal.as_deref(), Some(text));
+    }
+
+    #[tokio::test]
+    async fn test_aggregate_finalize_held_tail_kept() {
+        let text = "< 10\\)  \nBANANA";
+        let (calls, normal) = parse_tool_calls_harmony_complete(text, &Default::default(), None)
+            .await
+            .unwrap();
+        assert!(calls.is_empty());
+        assert_eq!(normal.as_deref(), Some(text));
     }
 
     // DEPRECATED(parser-fixture-duplicate): Duplicate of YAML fixture coverage: TOOLCALLING.batch.1 in tests/parity/toolcalling/fixtures/harmony/TOOLCALLING.batch.yaml.
@@ -590,14 +627,14 @@ mod tests {
     }
 
     #[tokio::test] // TOOLCALLING.batch.3 — gpt-oss
-    async fn test_parse_harmony_bare_text_without_final_message_is_dropped() {
+    async fn test_parse_harmony_bare_text_without_final_message_is_kept() {
         let text = "Hello, how can I help you today?";
         let (tool_calls, normal_content) =
             parse_tool_calls_harmony_complete(text, &Default::default(), None)
                 .await
                 .unwrap();
         assert!(tool_calls.is_empty());
-        assert_eq!(normal_content, Some("".to_string()));
+        assert_eq!(normal_content, Some(text.to_string()));
     }
 
     #[tokio::test] // TOOLCALLING.batch.3 — gpt-oss
@@ -1009,12 +1046,16 @@ mod detect_parser_tests {
 
         // Test various partial prefixes in strict mode
         assert!(
-            detect_tool_call_start_harmony("<", &config, true),
-            "'<' should be detected as potential start"
+            !detect_tool_call_start_harmony("<", &config, true),
+            "'<' is ordinary prose (e.g. \"x < 10\") and must not be detected as a potential start"
         );
         assert!(
-            detect_tool_call_start_harmony("<|", &config, true),
-            "'<|' should be detected as potential start"
+            !detect_tool_call_start_harmony("<|", &config, true),
+            "'<|' is ordinary prose and must not be detected as a potential start"
+        );
+        assert!(
+            detect_tool_call_start_harmony("<|s", &config, true),
+            "'<|s' should be detected as potential start"
         );
         assert!(
             detect_tool_call_start_harmony("<|start|>", &config, true),
@@ -1034,6 +1075,32 @@ mod detect_parser_tests {
             !detect_tool_call_start_harmony("xyz", &config, true),
             "'xyz' should not be detected in strict mode"
         );
+
+        // With both configured start tokens, prose endings must pass through.
+        let prod_config = JsonParserConfig {
+            tool_call_start_tokens: vec![
+                "<|start|>assistant<|channel|>commentary".to_string(),
+                "<|channel|>commentary".to_string(),
+            ],
+            tool_call_end_tokens: vec!["<|call|>".to_string()],
+            ..Default::default()
+        };
+        for chunk in [" <", "x <", "\\(2 < x ", "Django >= 4.2, "] {
+            assert!(
+                !detect_tool_call_start_harmony(chunk, &prod_config, true),
+                "{chunk:?} must not be detected as a potential start (strict)"
+            );
+            assert!(
+                !detect_tool_call_start_harmony(chunk, &prod_config, false),
+                "{chunk:?} must not be detected as a potential start (non-strict)"
+            );
+        }
+        for chunk in ["<|c", "<|channel|>comm", "<|start|>assistant<|ch"] {
+            assert!(
+                detect_tool_call_start_harmony(chunk, &prod_config, true),
+                "{chunk:?} is a split marker prefix and must still be detected"
+            );
+        }
     }
 
     // --- analysis-channel tool-call recovery (the gpt-oss-120b malformed form) ---
