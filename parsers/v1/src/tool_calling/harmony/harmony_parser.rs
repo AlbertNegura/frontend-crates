@@ -457,8 +457,6 @@ pub async fn parse_tool_calls_harmony_complete(
 /// ordinary prose (comparisons, LaTeX, HTML) and must not be treated as
 /// potential tool-call starts: jailing on them holds the rest of the message
 /// and the stream-end recovery drops it.
-const MIN_SPLIT_MARKER_PREFIX_CHARS: usize = 3;
-
 pub fn detect_tool_call_start_harmony(
     chunk: &str,
     config: &JsonParserConfig,
@@ -496,7 +494,7 @@ pub fn detect_tool_call_start_harmony(
             }
             // Check if the chunk could be a prefix of this start token
             // Handle Unicode character boundaries properly
-            for i in MIN_SPLIT_MARKER_PREFIX_CHARS..=token.chars().count() {
+            for i in 1..=token.chars().count() {
                 if let Some(prefix) = token.chars().take(i).collect::<String>().get(..) {
                     let prefix_str = &prefix[..prefix.len()];
                     if trimmed == prefix_str || trimmed.ends_with(prefix_str) {
@@ -524,7 +522,7 @@ pub fn detect_tool_call_start_harmony(
             }
             // Check if the chunk could be a prefix of this start token
             // Handle Unicode character boundaries properly
-            for i in MIN_SPLIT_MARKER_PREFIX_CHARS..=token.chars().count() {
+            for i in 1..=token.chars().count() {
                 if let Some(prefix) = token.chars().take(i).collect::<String>().get(..) {
                     let prefix_str = &prefix[..prefix.len()];
                     if trimmed == prefix_str || trimmed.ends_with(prefix_str) {
@@ -1046,12 +1044,12 @@ mod detect_parser_tests {
 
         // Test various partial prefixes in strict mode
         assert!(
-            !detect_tool_call_start_harmony("<", &config, true),
-            "'<' is ordinary prose (e.g. \"x < 10\") and must not be detected as a potential start"
+            detect_tool_call_start_harmony("<", &config, true),
+            "'<' should be detected as potential start"
         );
         assert!(
-            !detect_tool_call_start_harmony("<|", &config, true),
-            "'<|' is ordinary prose and must not be detected as a potential start"
+            detect_tool_call_start_harmony("<|", &config, true),
+            "'<|' should be detected as potential start"
         );
         assert!(
             detect_tool_call_start_harmony("<|s", &config, true),
@@ -1076,7 +1074,9 @@ mod detect_parser_tests {
             "'xyz' should not be detected in strict mode"
         );
 
-        // With both configured start tokens, prose endings must pass through.
+        // Split markers over the production start-token pair must still be
+        // detected; the jail, not this detector, decides whether a short
+        // `<` / `<|` tail is prose.
         let prod_config = JsonParserConfig {
             tool_call_start_tokens: vec![
                 "<|start|>assistant<|channel|>commentary".to_string(),
@@ -1085,20 +1085,16 @@ mod detect_parser_tests {
             tool_call_end_tokens: vec!["<|call|>".to_string()],
             ..Default::default()
         };
-        for chunk in [" <", "x <", "\\(2 < x ", "Django >= 4.2, "] {
-            assert!(
-                !detect_tool_call_start_harmony(chunk, &prod_config, true),
-                "{chunk:?} must not be detected as a potential start (strict)"
-            );
-            assert!(
-                !detect_tool_call_start_harmony(chunk, &prod_config, false),
-                "{chunk:?} must not be detected as a potential start (non-strict)"
-            );
-        }
-        for chunk in ["<|c", "<|channel|>comm", "<|start|>assistant<|ch"] {
+        for chunk in [
+            "<",
+            "<|",
+            "<|c",
+            "<|channel|>comm",
+            "<|start|>assistant<|ch",
+        ] {
             assert!(
                 detect_tool_call_start_harmony(chunk, &prod_config, true),
-                "{chunk:?} is a split marker prefix and must still be detected"
+                "{chunk:?} is a potential split marker and must be detected"
             );
         }
     }

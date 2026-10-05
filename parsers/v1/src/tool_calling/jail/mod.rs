@@ -1495,6 +1495,19 @@ impl JailedStream {
         if self.tool_call_parser.as_deref() == Some("gemma4") {
             return split_partial_call_prefix_gemma4(content);
         }
+        if is_harmony_parser(self.tool_call_parser.as_deref()) {
+            // A `<` / `<|` tail is ambiguous between prose and the head of a
+            // text-split marker. The stateless start detector cannot tell
+            // them apart, so hold the tail and let the next chunk resolve it
+            // through the marker matcher instead of jailing immediately.
+            let trimmed = content.trim_end();
+            for short in ["<|", "<"] {
+                if trimmed.ends_with(short) {
+                    let idx = content.rfind(short).expect("rfind after ends_with");
+                    return Some((&content[..idx], &content[idx..]));
+                }
+            }
+        }
         None
     }
 
@@ -3321,6 +3334,24 @@ mod tests {
             .flat_map(|d| d.choices.iter())
             .map(|c| c.logprobs.clone())
             .collect()
+    }
+
+    #[test]
+    fn test_split_partial_tool_call_start_harmony_short_suffix() {
+        let jail = JailedStream::builder().tool_call_parser("harmony").build();
+
+        // Prose tails and the head of a text-split marker are both held for
+        // the next chunk; they are never jailed on directly.
+        assert_eq!(jail.split_partial_tool_call_start("< "), Some(("", "< ")));
+        assert_eq!(jail.split_partial_tool_call_start("<|"), Some(("", "<|")));
+        assert_eq!(
+            jail.split_partial_tool_call_start("Django >= 4.2, <"),
+            Some(("Django >= 4.2, ", "<"))
+        );
+        // Content that does not end in a short marker prefix resolves to None.
+        assert_eq!(jail.split_partial_tool_call_start("10"), None);
+        assert_eq!(jail.split_partial_tool_call_start("<|channel|>comm"), None);
+        assert_eq!(jail.split_partial_tool_call_start("a < b"), None);
     }
 
     #[tokio::test]
