@@ -449,14 +449,9 @@ pub async fn parse_tool_calls_harmony_complete(
     Ok((res, Some(normal_text)))
 }
 
-/// Minimum prefix length of a start token that can still indicate a marker
-/// split across streaming chunks. Harmony tool-call markers begin with the
-/// atomic special tokens `<|start|>` / `<|channel|>`, which the detokenizer
-/// emits whole, so a genuinely split marker's shortest ambiguous prefix is
-/// three characters (`<|c`). Content chunks ending in `<` or `<|` are
-/// ordinary prose (comparisons, LaTeX, HTML) and must not be treated as
-/// potential tool-call starts: jailing on them holds the rest of the message
-/// and the stream-end recovery drops it.
+/// Short `<` / `<|` chunk tails are ambiguous between prose and the head of
+/// a text-split marker; the jail holds them for the next chunk instead of
+/// jailing immediately.
 pub fn detect_tool_call_start_harmony(
     chunk: &str,
     config: &JsonParserConfig,

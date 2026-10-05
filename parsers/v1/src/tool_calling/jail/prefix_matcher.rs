@@ -574,8 +574,6 @@ mod streaming_prose_tests {
         let patterns = vec![
             "<|start|>assistant<|channel|>commentary".to_string(),
             "<|channel|>commentary".to_string(),
-            "<|start|>assistant<|channel|>commentary".to_string(),
-            "<|channel|>commentary".to_string(),
         ];
         let matcher = MarkerMatcher::new(patterns).unwrap();
         let mut partial = String::new();

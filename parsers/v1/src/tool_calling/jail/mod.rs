@@ -207,9 +207,6 @@ struct ChoiceJailState {
     accumulated_logprobs: Option<ChatChoiceLogprobs>,
     /// Buffer for partial marker matches across chunks
     partial_match_buffer: String,
-    /// Logprobs for the text held in `partial_match_buffer`, kept so the
-    /// held suffix is emitted with its own tokens' logprobs once the
-    /// matcher resolves the hold.
     partial_logprobs_buffer: Option<ChatChoiceLogprobs>,
     /// Stream finish reason
     stream_finish_reason: Option<FinishReason>,
@@ -390,9 +387,7 @@ enum JailCompletion {
     Complete(CompletedJail),
 }
 
-/// Split a chunk's logprobs at a character boundary. Token entries fully
-/// inside the first `prefix_chars` characters stay with the prefix; the
-/// first token that crosses the boundary goes to the suffix so the suffix
+/// The first token crossing `prefix_chars` goes to the suffix so the suffix
 /// never loses an entry that overlaps it.
 fn split_logprobs_at_chars(
     logprobs: &Option<ChatChoiceLogprobs>,
@@ -426,8 +421,6 @@ fn split_logprobs_at_chars(
     (Some(prefix), Some(suffix))
 }
 
-/// Prepend any logprobs held for a pending suffix to the current chunk's
-/// logprobs, consuming the held entries.
 fn merge_held_logprobs(
     held: &mut Option<ChatChoiceLogprobs>,
     current: Option<ChatChoiceLogprobs>,
@@ -3435,7 +3428,6 @@ mod tests {
             content: Some(vec![entry("x "), entry("< "), entry("10")]),
             refusal: None,
         };
-        // Split before the `<` token: prefix keeps "x ", suffix keeps the rest.
         let (prefix, suffix) = split_logprobs_at_chars(&Some(logprobs.clone()), 2);
         let tokens = |lp: &Option<ChatChoiceLogprobs>| {
             lp.as_ref()
