@@ -387,8 +387,8 @@ enum JailCompletion {
     Complete(CompletedJail),
 }
 
-/// The first token crossing `prefix_chars` goes to the suffix so the suffix
-/// never loses an entry that overlaps it.
+/// A token straddling `prefix_chars` stays with the prefix, so the suffix
+/// starts at the first entry beginning at or past the boundary.
 fn split_logprobs_at_chars(
     logprobs: &Option<ChatChoiceLogprobs>,
     prefix_chars: usize,
@@ -675,6 +675,23 @@ impl ChoiceJailState {
             return;
         }
 
+        // Combine a pending hold with this chunk, mirroring process_content:
+        // the matcher resolves it, the split re-measures against the combined
+        // text, and the held entries merge into the emission, so a second
+        // consecutive short-suffix chunk cannot discard the first hold's
+        // text or logprobs.
+        let held_text;
+        let content = if self.partial_match_buffer.is_empty() {
+            content
+        } else {
+            held_text = format!(
+                "{}{}",
+                std::mem::take(&mut self.partial_match_buffer),
+                content
+            );
+            &held_text
+        };
+
         if let MatchResult::Partial {
             prefix, partial, ..
         } = jail_stream.marker_matcher.process_chunk(content, "")
@@ -696,8 +713,10 @@ impl ChoiceJailState {
         }
 
         if let Some((prefix, partial)) = jail_stream.split_partial_tool_call_start(content) {
+            let combined_lp =
+                merge_held_logprobs(&mut self.partial_logprobs_buffer, choice.logprobs.clone());
             let (prefix_lp, suffix_lp) =
-                split_logprobs_at_chars(&choice.logprobs, prefix.chars().count());
+                split_logprobs_at_chars(&combined_lp, prefix.chars().count());
             if !prefix.is_empty() {
                 #[allow(deprecated)]
                 let trailing_choice = create_choice_stream(
@@ -714,7 +733,10 @@ impl ChoiceJailState {
             self.partial_logprobs_buffer = suffix_lp;
         } else if jail_stream.should_start_jail(content) {
             self.begin_jail(content.to_string(), None);
+            self.partial_logprobs_buffer = None;
         } else {
+            let merged =
+                merge_held_logprobs(&mut self.partial_logprobs_buffer, choice.logprobs.clone());
             #[allow(deprecated)]
             let trailing_choice = create_choice_stream(
                 choice.index,
@@ -722,7 +744,7 @@ impl ChoiceJailState {
                 content,
                 None,
                 choice.finish_reason,
-                choice.logprobs.clone(),
+                merged,
             );
             emissions.push(ChoiceEmission::Trailing(trailing_choice));
         }
@@ -3454,6 +3476,66 @@ mod tests {
         assert_eq!(tokens(&prefix), vec!["< ", "x "]);
         assert_eq!(tokens(&suffix), vec!["< "]);
         assert!(held_buf.is_none());
+    }
+
+    #[test]
+    fn test_trailing_double_hold_keeps_first_hold_text_and_logprobs() {
+        let jail_stream = JailedStream::builder().tool_call_parser("harmony").build();
+        let mut state = ChoiceJailState::new(0, false, None);
+
+        let entry = |token: &str| dynamo_protocols::types::ChatCompletionTokenLogprob {
+            token: token.to_string(),
+            logprob: 0.0,
+            token_id: None,
+            bytes: None,
+            top_logprobs: vec![],
+        };
+        let lp = |tokens: &[&str]| {
+            Some(ChatChoiceLogprobs {
+                content: Some(tokens.iter().map(|t| entry(t)).collect::<Vec<_>>()),
+                refusal: None,
+            })
+        };
+        let choice = |tokens: &[&str]| ChatChoiceStream {
+            index: 0,
+            delta: dynamo_protocols::types::ChatCompletionStreamResponseDelta {
+                role: None,
+                content: None,
+                tool_calls: None,
+                function_call: None,
+                refusal: None,
+                reasoning_content: None,
+            },
+            logprobs: lp(tokens),
+            finish_reason: None,
+        };
+
+        let mut emissions = Vec::new();
+        state.handle_trailing_content(
+            "answer < ",
+            &choice(&["answer", " ", "<", " "]),
+            &jail_stream,
+            &mut emissions,
+        );
+        state.handle_trailing_content(
+            "more < ",
+            &choice(&["more", " ", "<", " "]),
+            &jail_stream,
+            &mut emissions,
+        );
+
+        // The first hold's text survives the second split: the second prefix
+        // emission covers "< more " and only the final "< " stays held.
+        assert_eq!(state.partial_match_buffer, "< ");
+        // The held entries are the second chunk's tail; the first hold's
+        // entries merged into the second prefix emission, not discarded.
+        let held_tokens: Vec<String> = state
+            .partial_logprobs_buffer
+            .as_ref()
+            .and_then(|l| l.content.clone())
+            .map(|c| c.iter().map(|e| e.token.clone()).collect())
+            .unwrap_or_default();
+        assert_eq!(held_tokens, vec!["<", " "]);
     }
 
     #[test]
