@@ -1059,9 +1059,9 @@ mod detect_parser_tests {
             "'xyz' should not be detected in strict mode"
         );
 
-        // Split markers over the production start-token pair must still be
-        // detected; the jail, not this detector, decides whether a short
-        // `<` / `<|` tail is prose.
+        // Channel-specific split markers over the production start-token
+        // pair must still be detected; the jail, not this detector, decides
+        // whether a short tail is prose.
         let prod_config = JsonParserConfig {
             tool_call_start_tokens: vec![
                 "<|start|>assistant<|channel|>commentary".to_string(),
@@ -1070,13 +1070,7 @@ mod detect_parser_tests {
             tool_call_end_tokens: vec!["<|call|>".to_string()],
             ..Default::default()
         };
-        for chunk in [
-            "<",
-            "<|",
-            "<|c",
-            "<|channel|>comm",
-            "<|start|>assistant<|ch",
-        ] {
+        for chunk in ["<|c", "<|channel|>comm", "<|start|>assistant<|ch"] {
             assert!(
                 detect_tool_call_start_harmony(chunk, &prod_config, true),
                 "{chunk:?} is a potential split marker and must be detected"

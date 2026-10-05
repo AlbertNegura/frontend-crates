@@ -387,8 +387,9 @@ enum JailCompletion {
     Complete(CompletedJail),
 }
 
-/// A token straddling `prefix_chars` stays with the prefix, so the suffix
-/// starts at the first entry beginning at or past the boundary.
+/// A token that would cross `prefix_chars` stays with the suffix: entries
+/// are emitted with the chunk where their token completes, so the prefix
+/// never carries an entry for bytes it did not emit.
 fn split_logprobs_at_chars(
     logprobs: &Option<ChatChoiceLogprobs>,
     prefix_chars: usize,
@@ -406,12 +407,20 @@ fn split_logprobs_at_chars(
             split_at = i;
             break;
         }
-        chars += entry.token.chars().count();
+        let token_chars = entry.token.chars().count();
+        if chars + token_chars > prefix_chars {
+            split_at = i;
+            break;
+        }
+        chars += token_chars;
     }
     let mut prefix = lp.clone();
     let mut suffix = lp.clone();
     prefix.content = Some(content[..split_at].to_vec());
     suffix.content = Some(content[split_at..].to_vec());
+    // Refusal entries have no char alignment to the content split; emit
+    // them once with the prefix instead of cloning them into both halves.
+    suffix.refusal = None;
     if suffix.content.as_ref().is_some_and(|c| c.is_empty()) {
         suffix.content = None;
     }
@@ -430,8 +439,15 @@ fn merge_held_logprobs(
         (None, c) => c,
         (h, None) => h,
         (Some(mut h), Some(c)) => {
-            if let (Some(hc), Some(cc)) = (h.content.as_mut(), c.content.as_ref()) {
-                hc.extend(cc.iter().cloned());
+            match (h.content.as_mut(), c.content.as_ref()) {
+                (Some(hc), Some(cc)) => hc.extend(cc.iter().cloned()),
+                (None, Some(cc)) => h.content = Some(cc.clone()),
+                _ => {}
+            }
+            match (h.refusal.as_mut(), c.refusal.as_ref()) {
+                (Some(hr), Some(cr)) => hr.extend(cr.iter().cloned()),
+                (None, Some(cr)) => h.refusal = Some(cr.clone()),
+                _ => {}
             }
             Some(h)
         }
@@ -534,7 +550,9 @@ impl ChoiceJailState {
     /// token straddling the boundary stays with the emission. Callers feed
     /// every chunk's entries into the buffer at entry, so emissions,
     /// holds, and jail starts all draw from the same in-order pool and
-    /// content never goes out with entries belonging to other text.
+    /// content never goes out with entries belonging to other text. A token
+    /// that crosses the emitted-text boundary stays pending and rides with
+    /// the chunk where its token completes.
     fn consume_pending_entries(&mut self, chars: usize) -> Option<ChatChoiceLogprobs> {
         let available = self.partial_logprobs_buffer.take()?;
         let (front, rest) = split_logprobs_at_chars(&Some(available), chars);
@@ -3482,9 +3500,39 @@ mod tests {
                 .map(|c| c.iter().map(|e| e.token.clone()).collect::<Vec<_>>())
                 .unwrap_or_default()
         };
-        assert_eq!(tokens(&prefix), vec!["< ", "x "]);
-        assert_eq!(tokens(&suffix), vec!["< "]);
+        // "x " crosses the 3-char boundary, so it rides with the suffix
+        assert_eq!(tokens(&prefix), vec!["< "]);
+        assert_eq!(tokens(&suffix), vec!["x ", "< "]);
         assert!(held_buf.is_none());
+    }
+
+    #[test]
+    fn test_merge_held_logprobs_fills_missing_channels() {
+        let entry = |token: &str| dynamo_protocols::types::ChatCompletionTokenLogprob {
+            token: token.to_string(),
+            logprob: 0.0,
+            token_id: None,
+            bytes: None,
+            top_logprobs: vec![],
+        };
+        // Held entries for one channel merge with current entries for the other
+        let held = ChatChoiceLogprobs {
+            content: None,
+            refusal: Some(vec![entry("no")]),
+        };
+        let current = ChatChoiceLogprobs {
+            content: Some(vec![entry("x ")]),
+            refusal: Some(vec![entry("go")]),
+        };
+        let mut held_buf = Some(held);
+        let combined = merge_held_logprobs(&mut held_buf, Some(current));
+        let combined = combined.expect("merge keeps the combined logprobs");
+        let tok = |v: Option<Vec<dynamo_protocols::types::ChatCompletionTokenLogprob>>| {
+            v.map(|c| c.iter().map(|e| e.token.clone()).collect::<Vec<_>>())
+                .unwrap_or_default()
+        };
+        assert_eq!(tok(combined.content), vec!["x "]);
+        assert_eq!(tok(combined.refusal), vec!["no", "go"]);
     }
 
     #[test]
@@ -3573,6 +3621,29 @@ mod tests {
         let (empty, all) = split_logprobs_at_chars(&Some(logprobs), 0);
         assert_eq!(tokens(&empty), Vec::<String>::new());
         assert_eq!(tokens(&all).len(), 3);
+
+        // A token crossing the boundary belongs to the suffix: split after
+        // "x" leaves the "x<" entry with the held "<" text
+        let crossing = ChatChoiceLogprobs {
+            content: Some(vec![entry("x<")]),
+            refusal: Some(vec![entry("refused")]),
+        };
+        let (cross_pre, cross_suf) = split_logprobs_at_chars(&Some(crossing), 1);
+        assert_eq!(tokens(&cross_pre), Vec::<String>::new());
+        assert_eq!(tokens(&cross_suf), vec!["x<"]);
+        // Refusal entries emit once, with the prefix half
+        assert_eq!(
+            cross_pre
+                .as_ref()
+                .and_then(|l| l.refusal.as_ref().map(|r| r.len())),
+            Some(1)
+        );
+        assert!(
+            cross_suf
+                .as_ref()
+                .and_then(|l| l.refusal.as_ref())
+                .is_none()
+        );
     }
 
     #[tokio::test]
