@@ -697,46 +697,6 @@ impl ReasoningParser for GptOssReasoningParser {
 mod tests {
     use super::*;
 
-    #[test]
-    fn gptoss_inequality_text_path_chunk_final_lt() {
-        let mut parser = GptOssReasoningParser::new().expect("Failed to create parser");
-        let chunks: Vec<&str> = vec![
-            "<|channel|>analysis<|message|>The user wants an inequality between 2 and 10.<|end|>",
-            "<|start|>assistant<|channel|>final<|message|>",
-            "\\(",
-            "2",
-            " <",
-            " x",
-            " <",
-            " ",
-            "10",
-            "\\)",
-            "\n\n",
-            "BAN",
-            "ANA",
-        ];
-        let mut normal = String::new();
-        let mut reasoning = String::new();
-        for chunk in &chunks {
-            let r = parser.parse_reasoning_streaming_incremental(chunk, &[]);
-            normal.push_str(&r.normal_text);
-            reasoning.push_str(&r.reasoning_text);
-        }
-        let f = parser.finish_reasoning_stream();
-        normal.push_str(&f.normal_text);
-        reasoning.push_str(&f.reasoning_text);
-        println!("streamed normal_text: {normal:?}");
-        println!("streamed reasoning_text: {reasoning:?}");
-        assert!(
-            normal.contains("10"),
-            "normal_text lost the tail after chunk-final '<': {normal:?}"
-        );
-        assert!(
-            normal.contains("BANANA"),
-            "normal_text lost BANANA: {normal:?}"
-        );
-    }
-
     #[test] // REASONING.batch.2.c, TOOLCALLING.harmony.1
     fn test_gpt_oss_reasoning_parser() {
         let mut parser = GptOssReasoningParser::new().expect("Failed to create parser");

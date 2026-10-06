@@ -3680,7 +3680,6 @@ mod tests {
         let (cross_pre, cross_suf) = split_logprobs_at_chars(&Some(crossing), 1);
         assert_eq!(tokens(&cross_pre), Vec::<String>::new());
         assert_eq!(tokens(&cross_suf), vec!["x<"]);
-        // Refusal entries emit once, with the prefix half
         assert_eq!(
             cross_pre
                 .as_ref()
