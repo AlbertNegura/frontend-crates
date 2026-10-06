@@ -345,13 +345,6 @@ pub async fn parse_tool_calls_harmony_complete(
     _config: &JsonParserConfig,
     _tools: Option<&[ToolDefinition]>,
 ) -> anyhow::Result<(Vec<ToolCallResponse>, Option<String>)> {
-    // Bare text cannot contain a tool call. The streaming reasoning
-    // parser strips channel markers before this runs, so the aggregator
-    // only ever re-parses plain content here.
-    if !text.contains("<|") {
-        return Ok((vec![], Some(text.to_string())));
-    }
-
     let enc = match get_harmony_encoding().await.as_ref() {
         Ok(e) => e,
         Err(e) => {
@@ -541,16 +534,6 @@ mod tests {
         (call.function.name, args)
     }
 
-    #[tokio::test]
-    async fn test_aggregate_finalize_bare_prose_kept() {
-        let text = "\\(2 < x < 10\\)  \nBANANA";
-        let (calls, normal) = parse_tool_calls_harmony_complete(text, &Default::default(), None)
-            .await
-            .unwrap();
-        assert!(calls.is_empty());
-        assert_eq!(normal.as_deref(), Some(text));
-    }
-
     // DEPRECATED(parser-fixture-duplicate): Duplicate of YAML fixture coverage: TOOLCALLING.batch.1 in tests/parity/toolcalling/fixtures/harmony/TOOLCALLING.batch.yaml.
     #[tokio::test] // TOOLCALLING.batch.1, TOOLCALLING.harmony.2
     async fn test_parse_tool_calls_harmony_complete_basic() {
@@ -610,14 +593,14 @@ mod tests {
     }
 
     #[tokio::test] // TOOLCALLING.batch.3 — gpt-oss
-    async fn test_parse_harmony_bare_text_without_final_message_is_kept() {
+    async fn test_parse_harmony_bare_text_without_final_message_is_dropped() {
         let text = "Hello, how can I help you today?";
         let (tool_calls, normal_content) =
             parse_tool_calls_harmony_complete(text, &Default::default(), None)
                 .await
                 .unwrap();
         assert!(tool_calls.is_empty());
-        assert_eq!(normal_content, Some(text.to_string()));
+        assert_eq!(normal_content, Some("".to_string()));
     }
 
     #[tokio::test] // TOOLCALLING.batch.3 — gpt-oss

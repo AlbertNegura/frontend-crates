@@ -3459,6 +3459,61 @@ mod tests {
             .collect()
     }
 
+    /// Helper: assemble choice-0 content text across jail emissions.
+    fn collect_stream_content(
+        responses: &[Annotated<CreateChatCompletionStreamResponse>],
+    ) -> String {
+        let mut content = String::new();
+        for r in responses {
+            let Some(resp) = r.data.as_ref() else {
+                continue;
+            };
+            for choice in &resp.choices {
+                if let Some(dynamo_protocols::types::ChatCompletionMessageContent::Text(t)) =
+                    choice.delta.content.as_ref()
+                {
+                    content.push_str(t);
+                }
+            }
+        }
+        content
+    }
+
+    #[tokio::test]
+    async fn test_jailed_stream_keeps_prose_with_lt_operators() {
+        // gpt-oss models emit prose containing '<' operators; chunked at
+        // token boundaries, a chunk ending in '<' must be held only as a
+        // potential marker prefix and released when no marker follows —
+        // never dropped.
+        let jail = JailedStream::builder().tool_call_parser("harmony").build();
+        let chunks: Vec<_> = ["\\(2", " <", " x", " <", " 10", "\\)", "\nBANANA"]
+            .into_iter()
+            .map(text_chunk)
+            .collect();
+
+        let responses: Vec<_> = jail
+            .apply_with_finish_reason(stream::iter(chunks))
+            .collect()
+            .await;
+        let content = collect_stream_content(&responses);
+        assert_eq!(content, "\\(2 < x < 10\\)\nBANANA");
+    }
+
+    #[tokio::test]
+    async fn test_stream_end_flushes_held_partial_as_content() {
+        // Output ending in '<' holds a potential marker prefix; the stream
+        // ending must release the hold as content instead of dropping it.
+        let jail = JailedStream::builder().tool_call_parser("harmony").build();
+        let chunks: Vec<_> = ["answer is x <"].into_iter().map(text_chunk).collect();
+
+        let responses: Vec<_> = jail
+            .apply_with_finish_reason(stream::iter(chunks))
+            .collect()
+            .await;
+        let content = collect_stream_content(&responses);
+        assert_eq!(content, "answer is x <");
+    }
+
     #[test]
     fn test_split_partial_tool_call_start_harmony_short_suffix() {
         let jail = JailedStream::builder().tool_call_parser("harmony").build();
