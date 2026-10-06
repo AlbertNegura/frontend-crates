@@ -3496,8 +3496,6 @@ mod tests {
 
     #[tokio::test]
     async fn test_stream_end_flushes_held_partial_as_content() {
-        // Output ending in '<' holds a potential marker prefix; the stream
-        // ending must release the hold as content instead of dropping it.
         let jail = JailedStream::builder().tool_call_parser("harmony").build();
         let chunks: Vec<_> = ["answer is x <"].into_iter().map(text_chunk).collect();
 
