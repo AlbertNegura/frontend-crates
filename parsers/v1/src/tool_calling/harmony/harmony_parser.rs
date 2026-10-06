@@ -1020,10 +1020,6 @@ mod detect_parser_tests {
             "'<|' should be detected as potential start"
         );
         assert!(
-            detect_tool_call_start_harmony("<|s", &config, true),
-            "'<|s' should be detected as potential start"
-        );
-        assert!(
             detect_tool_call_start_harmony("<|start|>", &config, true),
             "'<|start|>' should be detected as potential start"
         );

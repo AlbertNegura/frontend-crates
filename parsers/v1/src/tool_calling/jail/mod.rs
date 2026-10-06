@@ -3665,8 +3665,6 @@ mod tests {
         assert_eq!(tokens(&prefix), vec!["x "]);
         assert_eq!(tokens(&suffix), vec!["< ", "10"]);
 
-        // A token crossing the boundary belongs to the suffix: split after
-        // "x" leaves the "x<" entry with the held "<" text
         let crossing = ChatChoiceLogprobs {
             content: Some(vec![entry("x<")]),
             refusal: Some(vec![entry("refused")]),
