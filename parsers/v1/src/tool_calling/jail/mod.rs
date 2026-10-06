@@ -546,13 +546,9 @@ impl ChoiceJailState {
     }
 
     /// Consume pending logprob entries for `chars` characters of emitted
-    /// text, leaving the remainder held for the text still buffered. A
-    /// token straddling the boundary stays with the emission. Callers feed
-    /// every chunk's entries into the buffer at entry, so emissions,
-    /// holds, and jail starts all draw from the same in-order pool and
-    /// content never goes out with entries belonging to other text. A token
-    /// that crosses the emitted-text boundary stays pending and rides with
-    /// the chunk where its token completes.
+    /// text, leaving the remainder held for the text still buffered; a
+    /// token that crosses the boundary stays pending for the next
+    /// emission.
     fn consume_pending_entries(&mut self, chars: usize) -> Option<ChatChoiceLogprobs> {
         let available = self.partial_logprobs_buffer.take()?;
         let (front, rest) = split_logprobs_at_chars(&Some(available), chars);
@@ -3459,7 +3455,6 @@ mod tests {
             .collect()
     }
 
-    /// Helper: assemble choice-0 content text across jail emissions.
     fn collect_stream_content(
         responses: &[Annotated<CreateChatCompletionStreamResponse>],
     ) -> String {
@@ -3570,7 +3565,6 @@ mod tests {
             bytes: None,
             top_logprobs: vec![],
         };
-        // Held entries for one channel merge with current entries for the other
         let held = ChatChoiceLogprobs {
             content: None,
             refusal: Some(vec![entry("no")]),
