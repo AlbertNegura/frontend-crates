@@ -284,8 +284,36 @@ the same resolved `DeepseekV41GeometrySpec` on the frontend and encoder.
 
 The pixel-free planner mirrors [pinned SGLang](https://github.com/sgl-project/sglang/blob/ffac53d779c08dcdab2d07e5e2a41dba83f0e65c/python/sglang/srt/multimodal/deepseek_v41_image_processing.py).
 Invalid inputs/settings and unrepresentable `u32` output dimensions return
-errors. Full pixel processing, registry activation, and frontend/worker
-integration remain separate work.
+errors.
+
+The registry also exposes **metadata-only** DSV4.1 planning:
+`ProcessorSpec::DeepseekV41` / `{"family": "deepseek_v41", ...}` accept
+`image_token_id` and the geometry fields above. `spec_from_hf_configs` selects
+this family for `deepseek_v4` and `deepseek_v41`; it accepts flat `vision_*`
+fields or nested `vision_config` aliases (`patch_size`, `downsample_ratio`,
+`min_pixels`, `max_image_tokens`, `max_wh_ratio`). Required geometry fields
+and the image id must be present; there are no serving defaults. The
+preprocessor config must be an object with no non-null processing overrides
+(the inert `processor_class` field is allowed). Preserve the checkpoint's
+original `model_type`: a config serialized as `deepseek_v3` is unsupported.
+
+Use `num_media_tokens` and `layout_from_metadata`, then pass the counts and
+layout to `token_layout::apply_layout` with the context limit.
+See the compiled example on [`DeepseekV41Processor`](src/models/deepseek_v41.rs).
+
+
+Every expanded position uses the same vocabulary `image_token_id`, including
+boundaries and row separators. The model supplies embeddings for the entire
+span, so `feature_ranges` includes those positions too.
+`DeepseekV41ImagePlan::token_types()` separately iterates the pinned processor's
+START/IMAGE/ROW_SEPARATOR/END types (0/1/2/3); these are not vocabulary ids.
+Adjacent images retain distinct item offsets even when their repeated ids
+form one contiguous run. Consumers must pass those offsets to workers rather
+than rediscovering items by scanning token ids.
+
+`process_item` and processed-item `layout` explicitly return `Unsupported`.
+Full pixel processing and frontend/worker integration remain separate work;
+this registration does not make a DSV4.1 image encoding pipeline available.
 
 Regenerate/check the Python-derived fixtures with:
 
