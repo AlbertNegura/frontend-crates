@@ -1,9 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-"""Single source of the UNIFIED case taxonomy: scenario slug -> numbered id
-(UNIFIED.<group>-<sub>) and the per-group axis labels. Shared by the fixture
-exploder (names case files by number) and the conformance generator (renders the
-group labels), so the numbering can't drift between them.
+"""Shared Unified descriptive IDs, ordering, display placement, and historical aliases.
+
+Numeric groups identify shared behavior; named groups identify family-specific
+behavior. Published numeric labels remain immutable aliases and ordering metadata.
+Parser configuration and golden behavior remain owned by the authored corpus.
 Groups 1-9 mirror the tool-calling STREAM taxonomy (TOOLCALLING.streamv1.N) as
 tool-only unified cases (UNIFIED subsumes STREAM). Group 10 is the reasoning axis
 (REASONING.*). Group 11 is unique to unified: reasoning<->tool interleaving that
@@ -24,6 +25,7 @@ import yaml
 
 import markers
 from null_cases import NULL_VARIANTS
+from schema_cases import ARGUMENT_SECTIONS, CONFORMANCE_CASES, SCHEMA_GROUPS, argument_section, schema_group
 
 UNIFIED_TAX = {
     # Group 1 — Single call
@@ -40,6 +42,7 @@ UNIFIED_TAX = {
     # Group 5 — Truncation / recovery (streamv1.5)
     "truncated_tool_eof": (5, "1"), "tool_no_close": (5, "2"),
     "orphan_close_after_prose": (5, "3"),
+    "malformed_json_then_two_valid_calls": (5, "4"),
     # Group 6 — Empty body (streamv1.6)
     "empty_args": (6, "1"),
     # Group 7 — Argument fidelity (streamv1.7)
@@ -53,10 +56,33 @@ UNIFIED_TAX = {
     "glm_ref_encoded_targets": (7, "11"),
     "glm_ref_json_looking_strings": (7, "12"),
     "glm_ref_scalar_types": (7, "13"),
+    "unused_reference_graph_parameter_types": (7, "14"),
+    "nullable_reference_alias_literals": (7, "15"),
+    "local_schema_id_preserves_type": (7, "16"),
+    "deepseek_v41_json_invocation_body": ("deepseek", "1"),
+    "glm47_reference_type_intersection": ("glm5", "2"),
+    **{f"schema_{case['name']}": (7, f"{SCHEMA_GROUPS[schema_group(case['name'])][1]}.{case['name']}")
+       for case in CONFORMANCE_CASES},
     # Group 8 — Content / narration position (streamv1.8)
     "text_before_tool": (8, "1"), "trailing_text_after_tool": (8, "2"),
     "text_sandwich": (8, "3"), "text_between_calls": (8, "4"),
     "narrated_calls": (8, "5"),
+    "native_quoted_control_in_response": (8, "6"),
+    "native_single_quoted_word_control": (8, "7"),
+    "native_quoted_control_then_call": (8, "8"),
+    "native_unmatched_quote_then_call": (8, "9"),
+    "native_quoted_control_in_reasoning": (40, "5"),
+    "native_quoted_incomplete_header": (8, "10"),
+    "native_single_quote_contraction_response": (8, "11"),
+    "native_single_quote_contraction_reasoning": (40, "6"),
+    "guided_quoted_reasoning_closer_named": (34, "8"),
+    "guided_quoted_reasoning_closer_required": (34, "9"),
+    "guided_response_quoted_control_braces_named": (35, "3"),
+    "guided_response_quoted_control_braces_required": (35, "4"),
+    "guided_response_rejected_header_quote_ownership": (35, "5"),
+    "muse_quoted_reserved_eom_argument": ("muse", "2"),
+    "muse_quoted_reserved_eot_argument": ("muse", "3"),
+    "muse_quoted_reserved_start_argument": ("muse", "4"),
     # Group 10 — Reasoning span (REASONING.*), reasoning-only
     "reason_only": (10, "1"), "reason_then_content": (10, "2"),
     "two_reason_spans": (10, "3"), "reason_unterminated": (10, "4"),
@@ -160,10 +186,12 @@ UNIFIED_GROUP_LABEL = {
     35: "Guided Decoding — markers in visible answers",
     40: "Prefilled Reasoning", 41: "Prefilled Reasoning — malformed",
     50: "Prefilled Response", 51: "Prefilled Response — malformed",
-    "gemma": "Gemma 4 guided call-prefix boundaries",
-    "glm5": "GLM 5 argument-marker boundaries",
-    "kimi": "Kimi K3 XTML",
-    "muse": "Muse-specific",
+    "deepseek_v4": "Single Family Test: DeepSeek V4-specific tests",
+    "gemma": "Single Family Test: Gemma 4 guided call-prefix boundaries",
+    "glm5": "Single Family Test: GLM argument handling",
+    "deepseek": "Single Family Test: DeepSeek V4.1 DSML invocation bodies",
+    "kimi": "Single Family Test: Kimi K3 XTML",
+    "muse": "Single Family Test: Muse-specific",
 }
 
 
@@ -178,6 +206,50 @@ def tax(scenario):
     return UNIFIED_TAX.get(scenario, (9, scenario))
 
 
+# Display placement may change without renumbering published capture IDs.
+_DISPLAY_GROUP = {"guided_response_rejected_header_quote_ownership": "deepseek_v4"}
+
+
+def display_tax(scenario):
+    group, sub = tax(scenario)
+    return _DISPLAY_GROUP.get(scenario, group), sub
+
+
+def display_section(scenario):
+    group, _ = display_tax(scenario)
+    if group == 7:
+        section = argument_section(scenario)
+        return f"unified_g7_{section}", ARGUMENT_SECTIONS[section]
+    return f"unified_g{group}", UNIFIED_GROUP_LABEL.get(group, "Other")
+
+
+def display_sort_key(scenario):
+    group, _ = display_tax(scenario)
+    group_key = (0, group) if isinstance(group, int) else (1, str(group))
+    section_rank = list(ARGUMENT_SECTIONS).index(argument_section(scenario)) if group == 7 else 0
+    return group_key, section_rank, case_description(scenario), scenario
+
+
+DISPLAY_PREFIXES = {"deepseek": ("deepseek_v41", "ds41"),
+                    "deepseek_v4": ("deepseek_v4", "ds4")}
+
+
+def display_case_labels(scenarios):
+    """Display ranks belong to the visible corpus, never to capture identities."""
+    labels = {}
+    counts = {}
+    for scenario in sorted(set(scenarios), key=display_sort_key):
+        group, _ = display_tax(scenario)
+        counts[group] = counts.get(group, 0) + 1
+        full_prefix, compact_prefix = DISPLAY_PREFIXES.get(group, (str(group), str(group)))
+        labels[scenario] = {
+            "label": f"{full_prefix}-{case_description(scenario)}",
+            "compact_prefix": compact_prefix,
+            "display_number": counts[group],
+        }
+    return labels
+
+
 def taxonomy_sort_key(scenario):
     """Sort numeric groups first and their numeric suffixes numerically."""
     group, sub = tax(scenario)
@@ -187,14 +259,37 @@ def taxonomy_sort_key(scenario):
     return group_key, 10_000, sub
 
 
-def case_label(scenario):
-    """Scenario slug -> short case label with a numeric suffix."""
+def legacy_case_label(scenario):
+    """Published numeric identity, retained for ordering and compatibility."""
     group, sub = tax(scenario)
     return f"{group}-{sub}"
 
 
+GROUP_DESCRIPTION_PREFIXES = {
+    "kimi": ("kimi_k3_",),
+    "gemma": ("gemma4_",),
+    "glm5": ("glm47_",),
+    "deepseek": ("deepseek_v41_",),
+    "muse": ("muse_",),
+}
+
+
+def case_description(scenario):
+    """The tested behavior, independent of its ordering and display placement."""
+    if scenario.startswith("schema_"):
+        return scenario.removeprefix("schema_")
+    for prefix in GROUP_DESCRIPTION_PREFIXES.get(tax(scenario)[0], ()):
+        if scenario.startswith(prefix):
+            return scenario.removeprefix(prefix)
+    return scenario
+
+
+def case_label(scenario):
+    return f"{tax(scenario)[0]}-{case_description(scenario)}"
+
+
 def numbered_id(scenario):
-    """Scenario slug -> intrinsic case id, such as `UNIFIED.7-1` or `UNIFIED.kimi-1`."""
+    """Scenario slug -> canonical descriptive ID (historical API name)."""
     return f"UNIFIED.{case_label(scenario)}"
 
 
@@ -202,6 +297,8 @@ def numbered_id(scenario):
 # read-side bridge from their former labels to the scenario-owned current label.
 # Current inputs and goldens use ``numbered_id`` and never write these aliases.
 LEGACY_CASE_LABELS = {
+    "7-6": "deepseek_v41_json_invocation_body",
+    "7-7": "glm47_reference_type_intersection",
     "1.a": "tool_only",
     "2.a": "two_calls", "2.b": "two_calls_same_name",
     "3.a": "text_only",
@@ -261,13 +358,49 @@ LEGACY_CASE_LABELS = {
 }
 
 
-def historical_case_label(label):
-    """Translate a pre-reorganization case label while leaving current labels unchanged."""
+def _label_owners(scenario_labels, historical_labels):
+    owners = {}
+    for scenario, labels in scenario_labels.items():
+        for label in labels:
+            owners.setdefault(label, set()).add(scenario)
+    for label, scenario in historical_labels.items():
+        owners.setdefault(label, set()).add(scenario)
+    return owners
+
+
+_LABEL_OWNERS = _label_owners(
+    {scenario: (case_label(scenario), legacy_case_label(scenario)) for scenario in UNIFIED_TAX},
+    LEGACY_CASE_LABELS,
+)
+
+
+def scenario_for_label(label, family=None, scenario=None):
+    """Resolve aliases without changing the meaning of older published labels."""
+    label = label.removeprefix("UNIFIED.")
+    if family and label.endswith(f".{family}"):
+        label = label[:-(len(family) + 1)]
+    if label in UNIFIED_TAX:
+        return label
+    if family == "gemma4":
+        label = {"31-29": "g4-1", "31-30": "g4-2"}.get(label, label)
     dotted_group_31 = re.fullmatch(r"31\.([a-x])", label)
     if dotted_group_31:
         label = f"31-{ord(dotted_group_31[1]) - ord('a') + 1}"
-    scenario = LEGACY_CASE_LABELS.get(label)
-    return case_label(scenario) if scenario is not None else label
+    owners = _LABEL_OWNERS.get(label, set())
+    if len(owners) > 1 and scenario in owners:
+        return scenario
+    if len(owners) > 1:
+        raise ValueError(f"conflicting Unified alias ownership: {label}: {sorted(owners)}")
+    return next(iter(owners), None)
+
+
+def historical_case_label(label, family=None, scenario=None):
+    owner = scenario_for_label(label, family, scenario)
+    if scenario in UNIFIED_TAX:
+        if owner is not None and owner != scenario:
+            raise ValueError(f"conflicting Unified scenario ownership: {label}: {owner}, {scenario}")
+        owner = scenario
+    return case_label(owner) if owner is not None else label
 
 
 # The unified corpus names a family by its MODEL family (`qwen3`); the grammar-token
